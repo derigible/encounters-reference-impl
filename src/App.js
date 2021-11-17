@@ -13,11 +13,16 @@ function App() {
         <Box sx={{ flexGrow: 1 }}>
           <AppBar position="fixed">
             <Toolbar>
-              <Typography variant="h6" component="div" margin="0 1em 0 0">
-                <Link to="/member">Member</Link>
+              <Typography
+                variant="h6"
+                component={Link}
+                to="/member"
+                margin="0 1em 0 0"
+              >
+                Member
               </Typography>
-              <Typography variant="h6" component="div">
-                <Link to="/navigator">Navigator</Link>
+              <Typography variant="h6" component={Link} to="/navigator">
+                Navigator
               </Typography>
             </Toolbar>
           </AppBar>
