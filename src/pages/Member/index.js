@@ -20,7 +20,7 @@ export default function Member() {
   return (
     <>
       <Typography variant="h2" as="h1" gutterBottom>
-        Navigator
+        Member
       </Typography>
       <Box sx={{ width: '100%', typography: 'body1' }}>
         <TabContext value={value}>

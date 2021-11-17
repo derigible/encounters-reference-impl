@@ -1,5 +1,5 @@
 import './App.css'
-import { BrowserRouter, Link, Route, Switch } from 'react-router-dom'
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom'
 import './App.css'
 import { AppBar, Typography, Box, Toolbar } from '@mui/material'
 
@@ -28,10 +28,10 @@ function App() {
           </AppBar>
         </Box>
         <div style={{ marginTop: '5em' }}>
-          <Switch>
-            <Route path="/navigator" component={Navigator} />
-            <Route path="/member" component={Member} />
-          </Switch>
+          <Routes>
+            <Route path="/navigator" element={<Navigator />} />
+            <Route path="/member" element={<Member />} />
+          </Routes>
         </div>
       </BrowserRouter>
     </>
