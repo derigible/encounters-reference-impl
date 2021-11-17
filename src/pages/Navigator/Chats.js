@@ -1,7 +1,15 @@
+import { Typography } from '@mui/material'
 import React from 'react'
 import { Link } from 'react-router-dom'
 
-function Chat() {
+function Chat({ token }) {
+  if (!token) {
+    return (
+      <div>
+        <Typography variant="h1">Need to Set Navigator Token</Typography>
+      </div>
+    )
+  }
   return (
     <div>
       <h1>Chat Rooms</h1>

@@ -1,17 +1,15 @@
-/**
-  This CodeSandbox has been automatically generated using
-  `codesandboxer`. If you're curious how that happened, you can
-  check out our docs here: https://github.com/codesandbox/codesandboxer
+import { ApolloProvider } from '@apollo/client'
+import ReactDOM from 'react-dom'
+import { BrowserRouter } from 'react-router-dom'
 
-  If you experience any struggles with this sandbox, please raise an issue
-  on github. :)
-*/
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App.js';
+import App from './App.js'
+import client from './subscriptions/client'
 
 ReactDOM.render(
-<App />,
-document.getElementById('root')
-);
-
+  <ApolloProvider client={client}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </ApolloProvider>,
+  document.getElementById('root')
+)
