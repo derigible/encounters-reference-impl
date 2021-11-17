@@ -1,34 +1,36 @@
-import React,  { Fragment, useState } from "react";
-import "./App.css";
-import Navbar from "./components/Navbar";
-import Tickets from "./components/Tickets";
-import {BrowserRouter, Route, Switch} from 'react-router-dom';
-import Chat from "./components/Chat";
-import UserInfo from "./components/UserInfo";
-import HomePage from "./components/Homepage"
-import NavbarMember from "./components/NavbarMember"
 import './App.css'
+import { BrowserRouter, Link, Route, Switch } from 'react-router-dom'
+import './App.css'
+import { AppBar, Typography, Box, Toolbar } from '@mui/material'
 
-function App () {
-  //const [isMember, setToMember] = React.useState(false);
-  const [isNavigator, setToNavigator] = useState(false);
-  const [isMember, setToMember] = useState(false)
+import Navigator from './pages/Navigator'
+import Member from './pages/Member'
+
+function App() {
   return (
-    <Fragment>
+    <>
       <BrowserRouter>
-      <HomePage setIsNavigator={setToNavigator} setMember={setToMember}/>
-      <Navbar navigator={isNavigator} member={isMember}/>
-      <NavbarMember member={isMember} navigator={isNavigator}/>
-      <Switch>
-      {/* <Route exact path='/' component={HomePage}/>; */}
-      <Route exact path='/chat' component={Chat}/>;
-      <Route path='/tickets' component={Tickets}/>;
-      <Route path='/userinfo' component={UserInfo}/>;
-      </Switch>
+        <Box sx={{ flexGrow: 1 }}>
+          <AppBar position="fixed">
+            <Toolbar>
+              <Typography variant="h6" component="div" margin="0 1em 0 0">
+                <Link to="/member">Member</Link>
+              </Typography>
+              <Typography variant="h6" component="div">
+                <Link to="/navigator">Navigator</Link>
+              </Typography>
+            </Toolbar>
+          </AppBar>
+        </Box>
+        <div style={{ marginTop: '5em' }}>
+          <Switch>
+            <Route path="/navigator" component={Navigator} />
+            <Route path="/member" component={Member} />
+          </Switch>
+        </div>
       </BrowserRouter>
-    </Fragment>
-  );
+    </>
+  )
 }
 
-export default App;
-
+export default App
