@@ -14,7 +14,7 @@ function Tickets(props) {
         <button>CLICK HERE FOR YOUR TICKETS</button>
       </NavLink>
       <br></br>
-      <Link href="/tickets2">
+      <Link to="/tickets2">
         <button>OTHER NAVIGATOR'S TICKETS</button>
       </Link>
     </div>

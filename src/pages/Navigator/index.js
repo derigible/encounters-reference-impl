@@ -5,13 +5,14 @@ import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 
-import Chats from '../../components/Chats'
+import Chats from './Chats'
 import Tickets from '../../components/Tickets'
 import UserInfo from '../../components/UserInfo'
 import { Typography } from '@mui/material'
 
 export default function Navigator() {
   const [value, setValue] = useState('1')
+  const [token, storeToken] = useState()
 
   const handleChange = (event, newValue) => {
     setValue(newValue)
@@ -38,7 +39,7 @@ export default function Navigator() {
             <Tickets />
           </TabPanel>
           <TabPanel value="3">
-            <UserInfo />
+            <UserInfo storeToken={storeToken} token={token} />
           </TabPanel>
         </TabContext>
       </Box>
