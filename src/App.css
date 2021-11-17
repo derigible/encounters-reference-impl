@@ -1,16 +1,16 @@
-* {
+/* * {
   margin: 0;
   padding:0;
-}
+} */
 
-nav {
+#nav {
   background-color: lightblue;
-  display: flex;
+  display: none;
   justify-content: space-between;
   padding: 25px 40px
 }
 
-nav ul li {
+/* nav ul li {
   list-style: none;
   display: inline-block;
 }
@@ -18,4 +18,25 @@ nav ul li {
 nav li a {
   text-decoration: none;
   padding: 10px 15px;
+} */
+
+#nav.open {
+  background-color: lightblue;
+  display: flex;
+  justify-content: space-between;
+  padding: 25px 40px
+}
+
+#membernav {
+  background-color: lightblue;
+  display: none;
+  justify-content: space-between;
+  padding: 25px 40px
+}
+
+#membernav.open {
+  background-color: lightblue;
+  display: flex;
+  justify-content: space-between;
+  padding: 25px 40px
 }
