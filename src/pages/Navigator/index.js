@@ -11,6 +11,8 @@ import Chats from './Chats'
 import Tickets from '../../components/Tickets'
 import UserInfo from '../../components/UserInfo'
 
+const navigator = require('/Users/dylanfeldman/Desktop/rightway/test-tools-/src/data/navigator.js')
+
 const TAB_MAP = {
   1: 'chats',
   2: 'tickets',
@@ -48,7 +50,7 @@ export default function Navigator() {
             </TabList>
           </Box>
           <TabPanel value="1">
-            <Chats />
+            <Chats storeToken={storeToken} token={token} id={navigator.id}/>
           </TabPanel>
           <TabPanel value="2">
             <Tickets />
