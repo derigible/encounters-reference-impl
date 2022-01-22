@@ -1,17 +1,23 @@
 import './App.css'
-import { Link, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import './App.css'
-import { AppBar, Typography, Box, Toolbar } from '@mui/material'
 
-import Navigator from './pages/Navigator'
+import HealthGuide from './pages/HealthGuide'
 import Member from './pages/Member'
+import { Button } from '@mui/material'
 
 function App() {
+  const resetUser = () => {
+    window.location.href = '/'
+  }
   return (
     <>
+      <Button variant="contained" onClick={resetUser} >
+        Reset User
+      </Button>
       <div style={{ marginTop: '5em' }}>
         <Routes>
-          <Route path="/navigator" element={<Navigator />} />
+          <Route path="/health_guide" element={<HealthGuide />} />
           <Route path="/member" element={<Member />} />
         </Routes>
       </div>

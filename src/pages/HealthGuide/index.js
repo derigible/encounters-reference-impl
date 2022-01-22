@@ -9,7 +9,6 @@ import { useSearchParams } from 'react-router-dom'
 
 import Chats from './Chats'
 import Tickets from '../../components/Tickets'
-import UserInfo from '../../components/UserInfo'
 
 const TAB_MAP = {
   1: 'chats',
@@ -23,7 +22,7 @@ const REVERSE_TAB_MAP = {
   userInfo: '3',
 }
 
-export default function Navigator() {
+export default function HealthGuide() {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [value, setValue] = useState(REVERSE_TAB_MAP[(searchParams.get('tab') || 'chats')])
@@ -31,13 +30,13 @@ export default function Navigator() {
 
   const handleChange = (event, newValue) => {
     setValue(newValue)
-    setSearchParams({ tab: TAB_MAP[newValue] })
+    setSearchParams({ ...searchParams, tab: TAB_MAP[newValue] })
   }
 
   return (
     <>
       <Typography variant="h2" as="h1" gutterBottom>
-        Navigator
+        HealthGuide
       </Typography>
       <Box sx={{ width: '100%', typography: 'body1' }}>
         <TabContext value={value}>
@@ -53,9 +52,6 @@ export default function Navigator() {
           </TabPanel>
           <TabPanel value="2">
             <Tickets />
-          </TabPanel>
-          <TabPanel value="3">
-            <UserInfo storeToken={storeToken} token={token} />
           </TabPanel>
         </TabContext>
       </Box>

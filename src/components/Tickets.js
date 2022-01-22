@@ -7,7 +7,7 @@ function Tickets({token}) {
   if (!token) {
     return ( 
       <div>
-        <Typography variant="h1">Need to Set Navigator Token</Typography>
+        <Typography variant="h1">Need to Set HealthGuide Token</Typography>
       </div>     
     )
   } 

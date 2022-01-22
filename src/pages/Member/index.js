@@ -5,16 +5,17 @@ import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import { Typography } from '@mui/material'
+import { useSearchParams } from 'react-router-dom'
 
 import Chats from './Chats'
-import UserInfo from '../../components/UserInfo'
 
 export default function Member() {
   const [value, setValue] = useState('1')
-  const [token, storeToken] = useState('')
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const handleChange = (event, newValue) => {
     setValue(newValue)
+    setSearchParams({ ...searchParams })
   }
 
   return (
@@ -32,9 +33,6 @@ export default function Member() {
           </Box>
           <TabPanel value="1">
             <Chats />
-          </TabPanel>
-          <TabPanel value="2">
-            <UserInfo storeToken={storeToken} token={token} />
           </TabPanel>
         </TabContext>
       </Box>
