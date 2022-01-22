@@ -11,8 +11,6 @@ import Chats from './Chats'
 import Tickets from '../../components/Tickets'
 import UserInfo from '../../components/UserInfo'
 
-const navigator = require('/Users/dylanfeldman/Desktop/rightway/test-tools-/src/data/navigator.js')
-
 const TAB_MAP = {
   1: 'chats',
   2: 'tickets',
@@ -27,7 +25,8 @@ const REVERSE_TAB_MAP = {
 
 export default function Navigator() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const [value, setValue] = useState(REVERSE_TAB_MAP[searchParams.get('tab')])
+
+  const [value, setValue] = useState(REVERSE_TAB_MAP[(searchParams.get('tab') || 'chats')])
   const [token, storeToken] = useState()
 
   const handleChange = (event, newValue) => {
@@ -50,7 +49,7 @@ export default function Navigator() {
             </TabList>
           </Box>
           <TabPanel value="1">
-            <Chats storeToken={storeToken} token={token} id={navigator.id}/>
+            <Chats storeToken={storeToken} token={token} id={null}/>
           </TabPanel>
           <TabPanel value="2">
             <Tickets />

@@ -14,28 +14,18 @@ export const destroyActionCableLink = () => {
 
 let actionCable = null
 
-export const createActionCableLink = (token) => {
+export const createActionCableLink = (token, channelName) => {
   if (actionCable) {
     destroyActionCableLink()
   }
-  const actionCableUrl = 'ws://localhost:3000/cable' + getTypeAndId()
+  const actionCableUrl = 'wss://wss-staging.rightwayhealthcare.com/?auth_token=' + token
   const cable = createConsumer(actionCableUrl)
 
   actionCable = new ActionCableLink({
     cable,
-    channelName: 'GraphqlChannel',
+    channelName,
   })
 
   return actionCable
 }
 
-export const rebuildActionCabelLink = (token) => {
-  actionCable.cable.disconnect()
-  actionCable.cable.url = 'ws://localhost:3000'
-  actionCable.cable.connect()
-}
-
-export function getTypeAndId() {
-  const parts = window.location.pathname.split('/')
-  return `?type=${parts[1]}&id=${parts[2]}`
-}

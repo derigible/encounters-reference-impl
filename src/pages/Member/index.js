@@ -11,7 +11,7 @@ import UserInfo from '../../components/UserInfo'
 
 export default function Member() {
   const [value, setValue] = useState('1')
-  const [token, storeToken] = useState()
+  const [token, storeToken] = useState('')
 
   const handleChange = (event, newValue) => {
     setValue(newValue)

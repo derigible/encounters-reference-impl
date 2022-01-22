@@ -1,12 +1,10 @@
 import { Button, Paper, TextField, Typography } from '@mui/material'
 import React from 'react'
 
-
-
-function User({ storeToken, token }) {
+export default function User({ storeToken, token }) {
   const saveToken = (e) => {
     e.preventDefault()
-    storeToken(e.target['outlined-basic'].value)
+    storeToken(e.target['access_token'].value)
   }
   
 
@@ -18,8 +16,8 @@ function User({ storeToken, token }) {
         <form onSubmit={saveToken} >
           <div style={{ marginBottom: '1em' }}>
             <TextField
-              id="outlined-basic"
-              label="Outlined"
+              id="access_token"
+              label="Access Token"
               variant="outlined"
               margin="normal"
             />
@@ -32,5 +30,3 @@ function User({ storeToken, token }) {
     </div>
   )
 }
-
-export default User
