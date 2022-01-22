@@ -15,7 +15,7 @@ function App() {
       <Button variant="contained" onClick={resetUser} >
         Reset User
       </Button>
-      <div style={{ marginTop: '5em' }}>
+      <div style={{ marginTop: '1em' }}>
         <Routes>
           <Route path="/health_guide" element={<HealthGuide />} />
           <Route path="/member" element={<Member />} />

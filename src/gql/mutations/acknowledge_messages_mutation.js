@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client'
 
-import { CHAT_FRAGMENT } from '../fragments/chat_fragment'
+import { CHATROOM_FRAGMENT } from '../fragments/chatRoom_fragment'
 
 export const ACKNOWLEDGE_MESSAGES_MUTATION = gql`
-  ${CHAT_FRAGMENT}
-  mutation AcknowledgeMessages($chatId: ID!) {
-    acknowledgeMessages(chatId: $chatId) {
-      chat {
-        ...ChatFragment
+  ${CHATROOM_FRAGMENT}
+  mutation AcknowledgeMessages($chatRoomId: ID!) {
+    acknowledgeMessages(chatRoomId: $chatRoomId) {
+      chatRoom {
+        ...ChatRoomFragment
       }
     }
   }

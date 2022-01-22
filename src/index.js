@@ -15,7 +15,6 @@ import client from './subscriptions/client'
 function StartScreen() {
   const [searchParams] = useSearchParams()
   const loc = useLocation()
-  console.log(loc)
 
   const [apolloClient, setApolloClient] = useState(() =>{
     if(searchParams.get('access_token')) {

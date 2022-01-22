@@ -1,12 +1,12 @@
 import { gql } from '@apollo/client'
 
-import { CHAT_FRAGMENT } from '../fragments/chat_fragment'
+import { CHATROOM_FRAGMENT } from '../fragments/chatRoom_fragment'
 
 export const INTAKE_QUERY = gql`
-  ${CHAT_FRAGMENT}
-  query IntakeChats {
+  ${CHATROOM_FRAGMENT}
+  query IntakeChatRooms {
     intakes {
-      ...ChatFragment
+      ...ChatRoomFragment
     }
   }
 `

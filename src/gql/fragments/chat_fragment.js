@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
-export const CHAT_FRAGMENT = gql`
-  fragment ChatFragment on Chat {
+export const CHATROOM_FRAGMENT = gql`
+  fragment ChatRoomFragment on ChatRoom {
     id
     category
     owner {

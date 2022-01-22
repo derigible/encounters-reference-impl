@@ -1,41 +1,36 @@
-import { useState } from 'react'
-import Box from '@mui/material/Box'
-import Tab from '@mui/material/Tab'
-import TabContext from '@mui/lab/TabContext'
-import TabList from '@mui/lab/TabList'
-import TabPanel from '@mui/lab/TabPanel'
-import { Typography } from '@mui/material'
-import { useSearchParams } from 'react-router-dom'
+import { Typography, Grid } from '@mui/material'
 
-import Chats from './Chats'
+import ChatRoom from './ChatRoom'
 
 export default function Member() {
-  const [value, setValue] = useState('1')
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue)
-    setSearchParams({ ...searchParams })
-  }
-
+  const chatRooms = [
+    { 
+      category_id: 'BILLING_PHARMACY', 
+      owner: {
+        name: 'Marc'
+      }
+    },
+    {
+      category_id: 'NAVIGATION', 
+      owner: {
+        name: 'Marc'
+      }
+    }
+  ]
   return (
     <>
       <Typography variant="h2" as="h1" gutterBottom>
         Member
       </Typography>
-      <Box sx={{ width: '100%', typography: 'body1' }}>
-        <TabContext value={value}>
-          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <TabList onChange={handleChange} aria-label="lab API tabs example">
-              <Tab label="Chats" value="1" />
-              <Tab label="User Info" value="2" />
-            </TabList>
-          </Box>
-          <TabPanel value="1">
-            <Chats />
-          </TabPanel>
-        </TabContext>
-      </Box>
+      <Grid container spacing={2}>
+        {
+          chatRooms.map((c) => (
+            <Grid item xs={6} md={6} key={c}>
+              <ChatRoom category={c.category_id} owner={c.owner} />
+            </Grid>
+          ))
+        }
+      </Grid>
     </>
   )
 }

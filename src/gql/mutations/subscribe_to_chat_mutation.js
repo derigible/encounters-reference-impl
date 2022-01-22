@@ -1,13 +1,13 @@
 import { gql } from '@apollo/client'
 
-import { CHAT_FRAGMENT } from '../fragments/chat_fragment'
+import { CHATROOM_FRAGMENT } from '../fragments/chatRoom_fragment'
 
-export const SUBSCRIBE_TO_CHAT_MUTATION = gql`
-  ${CHAT_FRAGMENT}
-  mutation SubscribeToChat($health_guideId: ID!, $chatId: ID!) {
-    subscribeToChat(health_guideId: $health_guideId, chatId: $chatId) {
-      chat {
-        ...ChatFragment
+export const SUBSCRIBE_TO_CHATROOM_MUTATION = gql`
+  ${CHATROOM_FRAGMENT}
+  mutation SubscribeToChatRoom($health_guideId: ID!, $chatRoomId: ID!) {
+    subscribeToChatRoom(health_guideId: $health_guideId, chatRoomId: $chatRoomId) {
+      chatRoom {
+        ...ChatRoomFragment
       }
     }
   }

@@ -4,8 +4,8 @@ import { MESSAGE_FIELDS_FRAGMENT } from '../fragments/message_fragment'
 
 export const MESSAGES_QUERY = gql`
   ${MESSAGE_FIELDS_FRAGMENT}
-  query MessagesForChat($chatId: ID!) {
-    chat(chatId: $chatId) {
+  query MessagesForChatRoom($chatRoomId: ID!) {
+    chatRoom(chatRoomId: $chatRoomId) {
       category
       messages {
         ...MessageFieldsFragment
