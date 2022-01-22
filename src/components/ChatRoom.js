@@ -3,18 +3,22 @@ import { Paper, Typography, Box, Stack, TextField, Button } from '@mui/material'
 import { useState, useEffect } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 
-import {SEND_MESSAGE_MUTATION} from '../gql/mutations/send_message_mutation'
-import {MESSAGES_QUERY} from '../gql/queries/messages_query'
 import {CHAT_ROOM_MESSAGES_SUBSCRIPTION} from '../gql/subscriptions/chat_room_messages_subscription'
 
 const messageStyles = {backgroundColor: 'green', display: 'inline-block', padding: '0.5em', borderRadius: '10px', color: 'white'}
 const ownerStyles = {backgroundColor: 'orange', color: 'initial'}
 const ownerStylesBlock = {justifyContent: 'end', display: 'inherit'}
 
-export default function ChatRoom({ chatRoom }) {
+export default function ChatRoom({ 
+  chatRoom, 
+  chatRoomQuery,
+  sendMessageMutation,
+  updateQuery,
+  update
+}) {
   const variables = { chatRoomId: chatRoom.id }
   const [newMessage, setNewMessage] = useState('')
-  const { subscribeToMore, data, loading, error } = useQuery(MESSAGES_QUERY, {
+  const { subscribeToMore, data, loading, error } = useQuery(chatRoomQuery, {
     variables,
   })
 
@@ -22,63 +26,29 @@ export default function ChatRoom({ chatRoom }) {
     return subscribeToMore({
       document: CHAT_ROOM_MESSAGES_SUBSCRIPTION,
       variables,
-      updateQuery: (prev, { subscriptionData }) => {
-        console.log('updating through ws')
-        if (!subscriptionData.data) return prev
-        const newChatMessage = subscriptionData.data.chatRoomMessages.message
-        return {
-          ...prev,
-          chat: {
-            ...prev.chat,
-            messages: [...prev.chat.messages, newChatMessage],
-          },
-        }
-      },
+      updateQuery,
     })
   }, [])
 
-  const [sendMessage] = useMutation(SEND_MESSAGE_MUTATION, {
-    update: (
-      currentCache,
-      {
-        data: {
-          sendMessage: { message, errors },
-        },
-      }
-    ) => {
-      const messagesQueryParams = {
-        query: MESSAGES_QUERY,
-        variables: { chat_room_id: chatRoom.id },
-      }
+  const [sendMessage] = useMutation(sendMessageMutation, {update})
 
-      console.log('updating through the mutation')
-      const chat = currentCache.readQuery(messagesQueryParams)
-      currentCache.writeQuery({
-        ...messagesQueryParams,
-        data: {
-          chat: { ...chat.chat, messages: [...chat.chat.messages, message] },
-        },
-      })
-      if (errors) {
-        console.log(`[ChatMutationErrors]`, errors)
-      }
-    },
-  })
-
-  const isOwner = (m) => m.sender.name === chatRoom.owner.name
+  const isOwner = (m) => m.sender && m.sender.name === chatRoom.owner.name
   const submitMessage = () => {
-    sendMessage({
-      variables: {
-        chatRoomId: chatRoom.id,
-        content: newMessage
+    sendMessage(
+      {
+        variables: {
+          chatRoomId: chatRoom.id,
+          content: newMessage
+        }
       }
-    })
+    )
     setNewMessage('')
   }
 
   if (loading) return <div>Loading...</div>
   if (error) return <div>{`Error! ${error.message}`}</div>
 
+  const messages = (data['chatRoom'] || data['chat_room']).messages
   return (
     <Paper>
       <Typography variant="h3">{ChatRoom.category}</Typography>
@@ -91,10 +61,10 @@ export default function ChatRoom({ chatRoom }) {
       }}>
         <Stack>
           {
-            data.chat.messages.map((m) => (
+            messages.map((m) => (
               <div key={m.id} style={isOwner(m) ? ownerStylesBlock : {}}>
                 <Stack>
-                  <Typography color="white">{m.sender.name}</Typography>
+                  <Typography color="white">{m.sender ? m.sender.name : 'Name'}</Typography>
                   <div>
                     <span style={isOwner(m) ? {...messageStyles, ...ownerStyles} : messageStyles}>
                       <Typography>{m.content}</Typography>

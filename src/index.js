@@ -41,7 +41,7 @@ function StartScreen() {
     const token = e.target['access_token'].value
     setApolloClient(client({
       token ,
-      path: actorType
+      path: `/${actorType}`
     }))
     let path = actorType === 'graphql' ? '/health_guide' : '/member'
     const params = new URLSearchParams({...searchParams, access_token: token})
