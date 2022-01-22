@@ -7,5 +7,6 @@ export const CHATROOM_FRAGMENT = gql`
     owner {
       name
     }
+    last_read_message
   }
 `

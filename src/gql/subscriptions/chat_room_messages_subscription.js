@@ -2,12 +2,15 @@ import { gql } from '@apollo/client'
 
 import { MESSAGE_FIELDS_FRAGMENT } from '../fragments/message_fragment'
 
-export const CHATROOM_SUBSCRIPTION = gql`
+export const CHAT_ROOM_MESSAGES_SUBSCRIPTION = gql`
   ${MESSAGE_FIELDS_FRAGMENT}
-  subscription ChatRoomMessageReceived($chatRoomId: ID!) {
+  subscription ChatRoomMessages($chatRoomId: ID!) {
     chatRoomMessages(chatRoomId: $chatRoomId) {
-      message {
-        ...MessageFieldsFragment
+      chatRoom {
+        id
+        message {
+          ...MessageFieldsFragment
+        }
       }
     }
   }

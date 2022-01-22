@@ -3,14 +3,18 @@ import { gql } from '@apollo/client'
 export const MAKE_REQUEST_MUTATION = gql`
   mutation MakeRequest(
     $content: String!
-    $title: String!
-    $requestType: TicketTypes!
+    $ticketTypeId: ID!
   ) {
-    makeRequest(content: $content, title: $title, requestType: $requestType) {
-      request {
+    makeRequest(content: $content, ticket_type_id: $ticketTypeId) {
+      errors {
+        messages
+      }
+      member_request {
         id
-        name
-        requestType
+        member {
+          name
+        }
+        sent_at
         content
       }
     }

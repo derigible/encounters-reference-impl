@@ -20,7 +20,7 @@ function StartScreen() {
     if(searchParams.get('access_token')) {
       return client({
         token: searchParams.get('access_token'),
-        path: loc.pathname
+        path: loc.pathname === 'health_guide' ? '/graphql' : '/consumer'
       })
     }
   })
@@ -29,7 +29,7 @@ function StartScreen() {
 
   if(apolloClient) {
     return (
-      <ApolloProvider client={client}>
+      <ApolloProvider client={apolloClient}>
         <App />
       </ApolloProvider>
     )

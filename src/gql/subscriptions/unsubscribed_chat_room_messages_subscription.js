@@ -2,10 +2,10 @@ import { gql } from '@apollo/client'
 
 import { CHATROOM_FRAGMENT } from '../fragments/chatRoom_fragment'
 
-export const INTAKE_SUBSCRIPTION = gql`
+export const UNSUBSCRIBED_CHAT_ROOM_MESSAGES = gql`
   ${CHATROOM_FRAGMENT}
-  subscription IntakeRecieved {
-    intakes {
+  subscription UnsubscribedChatRoomMessages {
+    unsubscribed_chat_room_messages {
       chatRoom {
         ...ChatRoomFragment
       }

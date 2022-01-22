@@ -1,6 +1,6 @@
 import { Typography, Grid } from '@mui/material'
 
-import ChatRoom from './ChatRoom'
+import ChatRoom from '../../components/ChatRoom'
 
 export default function Member() {
   const chatRooms = [
@@ -25,8 +25,8 @@ export default function Member() {
       <Grid container spacing={2}>
         {
           chatRooms.map((c) => (
-            <Grid item xs={6} md={6} key={c}>
-              <ChatRoom category={c.category_id} owner={c.owner} />
+            <Grid item xs={6} md={6} key={c.category_id}>
+              <ChatRoom chatRoom={c} />
             </Grid>
           ))
         }
