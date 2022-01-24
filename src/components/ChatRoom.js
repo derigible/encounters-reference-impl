@@ -22,6 +22,7 @@ export default function ChatRoom({
   sendMessageMutation,
   updateQuery,
   update,
+  setActiveMessagesCount = () => {},
 }) {
   const variables = { chatRoomId }
   const [newMessage, setNewMessage] = useState('')
@@ -36,6 +37,12 @@ export default function ChatRoom({
       updateQuery,
     })
   }, [])
+  useEffect(() => {
+    if (loading || error) return
+    setActiveMessagesCount(
+      (data['chatRoom'] || data['chat_room']).messages.length
+    )
+  }, [loading, error])
 
   const [sendMessage] = useMutation(sendMessageMutation, { update })
 
@@ -53,7 +60,6 @@ export default function ChatRoom({
   if (error) return <div>{`Error! ${error.message}`}</div>
 
   const chatRoom = data['chatRoom'] || data['chat_room']
-
   // TODO: fix this for health guide - must compare by id - pass this function in
   const isOwner = (u) => u.sender && u.sender.id === chatRoom.owner.id
   const messages = chatRoom.messages

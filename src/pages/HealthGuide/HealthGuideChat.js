@@ -1,26 +1,34 @@
-import { Button } from '@mui/material'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMessenger } from '@pinkairship/use-messenger'
 
 import ChatRoom from '../../components/ChatRoom'
 import { CHAT_ROOM_QUERY } from '../../gql/queries/chat_room'
 import { SEND_MESSAGE_MUTATION } from '../../gql/mutations/send_message_mutation'
+import { Typography } from '@mui/material'
 
-export default function HealthGuideChat(currentUserId) {
+export default function HealthGuideChat({
+  currentUserId,
+  chatRoomId,
+  notifyNewMessage,
+  setActiveMessagesCount,
+}) {
   const { addMessage } = useMessenger()
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const { id: chatRoomId } = useParams()
+
+  if (!chatRoomId) {
+    return <Typography>Select a Chat to Join</Typography>
+  }
 
   const updateQuery = (prev, { subscriptionData }) => {
     console.log('updating through ws')
     if (!subscriptionData.data) return prev
     const newChatMessage = subscriptionData.data.chat_room_messages.message
+    const messages = [...prev.chat_room.messages, newChatMessage]
+    notifyNewMessage()
+    setActiveMessagesCount(messages.length)
     return {
       ...prev,
-      chatRoom: {
-        ...prev.chatRoom,
-        messages: [...prev.chatRoom.messages, newChatMessage],
+      chat_room: {
+        ...prev.chat_room,
+        messages,
       },
     }
   }
@@ -45,25 +53,21 @@ export default function HealthGuideChat(currentUserId) {
     } else {
       console.log('updating through the mutation')
       const chatRoom = currentCache.readQuery(messagesQueryParams)
+      const messages = [...chatRoom.chat_room.messages, message]
       currentCache.writeQuery({
         ...messagesQueryParams,
         data: {
           chat_room: {
             ...chatRoom.chat_room,
-            messages: [...chatRoom.chat_room.messages, message],
+            messages,
           },
         },
       })
+      setActiveMessagesCount(messages.length)
     }
   }
   return (
     <div>
-      <Button
-        variant="contained"
-        onClick={() => navigate(`/health_guide?${searchParams}`)}
-      >
-        Back to Dashboard
-      </Button>
       <ChatRoom
         chatRoomId={chatRoomId}
         chatRoomQuery={CHAT_ROOM_QUERY}
@@ -71,6 +75,7 @@ export default function HealthGuideChat(currentUserId) {
         updateQuery={updateQuery}
         update={update}
         currentUserId={currentUserId}
+        setActiveMessagesCount={setActiveMessagesCount}
       />
     </div>
   )

@@ -52,7 +52,6 @@ export default function Member() {
     } else {
       console.log('updating through the mutation')
       const chat_room = currentCache.readQuery(messagesQueryParams)
-      console.log(chat_room, message)
       currentCache.writeQuery({
         ...messagesQueryParams,
         data: {

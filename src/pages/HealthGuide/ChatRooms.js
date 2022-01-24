@@ -16,9 +16,7 @@ import { UNSUBSCRIBE_FROM_CHATROOM_MUTATION } from '../../gql/mutations/unsubscr
 import { HG_CHAT_ROOMS_QUERY } from '../../gql/queries/hg_chat_rooms'
 import { UNSUBSCRIBED_CHAT_ROOM_MESSAGES } from '../../gql/subscriptions/unsubscribed_chat_room_messages_subscription'
 
-function ChatRooms({ currentUserId, currentHealthGuideId }) {
-  const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
+function ChatRooms({ setActiveChatRoom, currentHealthGuideId }) {
   const { subscribeToMore, data, loading, error } = useQuery(
     HG_CHAT_ROOMS_QUERY
   )
@@ -79,11 +77,7 @@ function ChatRooms({ currentUserId, currentHealthGuideId }) {
                       />
                       <Button
                         variant="contained"
-                        onClick={() =>
-                          navigate(
-                            `/health_guide/chatRoom/${row.id}?${searchParams}`
-                          )
-                        }
+                        onClick={() => setActiveChatRoom(row.id)}
                       >
                         Join Chat
                       </Button>
