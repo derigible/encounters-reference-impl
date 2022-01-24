@@ -37,7 +37,7 @@ export default function HealthGuideChat(currentUserId) {
       variables: { chatRoomId },
     }
 
-    if (errors) {
+    if (errors.length > 0) {
       console.log(`[SendMessageErrors]`, errors)
       errors.forEach((e) =>
         e.messages.forEach((m) => addMessage(`[SendMessage] ${m}`, 'error'))
@@ -48,9 +48,9 @@ export default function HealthGuideChat(currentUserId) {
       currentCache.writeQuery({
         ...messagesQueryParams,
         data: {
-          chatRoom: {
-            ...chatRoom.chatRoom,
-            messages: [...chatRoom.chatRoom.messages, message],
+          chat_room: {
+            ...chatRoom.chat_room,
+            messages: [...chatRoom.chat_room.messages, message],
           },
         },
       })

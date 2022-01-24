@@ -9,6 +9,9 @@ export const UNSUBSCRIBE_FROM_CHATROOM_MUTATION = gql`
       health_guide_id: $healthGuideId
       chat_room_id: $chatRoomId
     ) {
+      errors {
+        messages
+      }
       chat_room {
         ...ChatRoomFragment
       }

@@ -3,8 +3,9 @@ import { useMessenger } from '@pinkairship/use-messenger'
 import { Alert } from '@mui/material'
 
 const alertsContainer = {
-  position: 'absolute',
+  position: 'fixed',
   width: '100%',
+  top: 0,
 }
 
 const alertsContainerItem = {
@@ -16,8 +17,8 @@ export default function Alerts() {
   const { messages, removeMessage } = useMessenger()
 
   return (
-    <div style={{ alertsContainer }}>
-      <div style={{ alertsContainerItem }}>
+    <div style={alertsContainer}>
+      <div style={alertsContainerItem}>
         {Object.values(messages).map((m) => (
           <Alert
             key={m.id}

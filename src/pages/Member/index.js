@@ -1,5 +1,6 @@
 import { Typography, Grid } from '@mui/material'
 import { useQuery } from '@apollo/client'
+import { useMessenger } from '@pinkairship/use-messenger'
 
 import ChatRoom from '../../components/ChatRoom'
 import { M_CHAT_ROOM_QUERY } from '../../gql/queries/m_chat_room'
@@ -8,6 +9,7 @@ import { M_CHAT_ROOMS_QUERY } from '../../gql/queries/m_chat_rooms'
 import { M_SEND_MESSAGE_MUTATION } from '../../gql/mutations/m_send_message_mutation'
 
 export default function Member() {
+  const { addMessage } = useMessenger()
   const { data: c_data, loading: c_loading, error: c_error } = useQuery(
     M_CURRENT_USER_QUERY
   )
@@ -42,20 +44,24 @@ export default function Member() {
       variables: { chatRoomId: chatRoomId },
     }
 
-    console.log('updating through the mutation')
-    const chat_room = currentCache.readQuery(messagesQueryParams)
-    console.log(chat_room, message)
-    currentCache.writeQuery({
-      ...messagesQueryParams,
-      data: {
-        chat_room: {
-          ...chat_room.chat_room,
-          messages: [...chat_room.chat_room.messages, message],
-        },
-      },
-    })
-    if (errors) {
+    if (errors.length > 0) {
       console.log(`[SendMessageErrors]`, errors)
+      errors.forEach((e) =>
+        e.messages.forEach((m) => addMessage(`[SendMessage] ${m}`, 'error'))
+      )
+    } else {
+      console.log('updating through the mutation')
+      const chat_room = currentCache.readQuery(messagesQueryParams)
+      console.log(chat_room, message)
+      currentCache.writeQuery({
+        ...messagesQueryParams,
+        data: {
+          chat_room: {
+            ...chat_room.chat_room,
+            messages: [...chat_room.chat_room.messages, message],
+          },
+        },
+      })
     }
   }
   return (

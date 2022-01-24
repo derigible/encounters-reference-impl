@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useQuery, useMutation } from '@apollo/client'
+import { useQuery, useMutation, gql } from '@apollo/client'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -15,7 +15,6 @@ import { SUBSCRIBE_TO_CHATROOM_MUTATION } from '../../gql/mutations/subscribe_to
 import { UNSUBSCRIBE_FROM_CHATROOM_MUTATION } from '../../gql/mutations/unsubscribe_from_chat_mutation'
 import { HG_CHAT_ROOMS_QUERY } from '../../gql/queries/hg_chat_rooms'
 import { UNSUBSCRIBED_CHAT_ROOM_MESSAGES } from '../../gql/subscriptions/unsubscribed_chat_room_messages_subscription'
-import { CHAT_ROOM_QUERY } from '../../gql/queries/chat_room'
 
 function ChatRooms({ currentUserId, currentHealthGuideId }) {
   const [searchParams] = useSearchParams()
@@ -59,7 +58,8 @@ function ChatRooms({ currentUserId, currentHealthGuideId }) {
         <TableBody>
           {data.chat_rooms.map((row) => {
             const isParticipating = Object.values(row.participants.nodes).some(
-              (n) => n.id == currentHealthGuideId
+              (n) =>
+                n.id === currentHealthGuideId && n.__typename === 'HealthGuide'
             )
             return (
               <TableRow
@@ -118,10 +118,21 @@ function SubscribeToChatButton({ chatRoomId, healthGuideId }) {
       }
     ) => {
       const messagesQueryParams = {
-        query: CHAT_ROOM_QUERY,
+        query: gql`
+          query ChatRoom($chatRoomId: ID!) {
+            chat_room(chat_room_id: $chatRoomId) {
+              id
+              category
+              owner {
+                id
+                name
+              }
+            }
+          }
+        `,
         variables: { chatRoomId },
       }
-      if (errors) {
+      if (errors.length > 0) {
         console.log(`[SubscribeToChat]`, errors)
         errors.messages.forEach((m) =>
           addMessage(`[SubscribeToChat] ${m}`, 'error')
@@ -135,7 +146,6 @@ function SubscribeToChatButton({ chatRoomId, healthGuideId }) {
             chat_room: {
               ...chatRoom,
               ...chat_room,
-              messages: chat_room.messages ? chat_room.messages : [],
             },
           },
         })
@@ -173,11 +183,22 @@ function UnsubscribeFromChatButton({ chatRoomId, healthGuideId }) {
         }
       ) => {
         const messagesQueryParams = {
-          query: CHAT_ROOM_QUERY,
+          query: gql`
+            query ChatRoom($chatRoomId: ID!) {
+              chat_room(chat_room_id: $chatRoomId) {
+                id
+                category
+                owner {
+                  id
+                  name
+                }
+              }
+            }
+          `,
           variables: { chatRoomId },
         }
 
-        if (errors) {
+        if (errors.length > 0) {
           console.log(`[UnsubscribeFromChat]`, errors)
           errors.messages.forEach((m) =>
             addMessage(`[UnsubscribeFromChat] ${m}`, 'error')
@@ -191,7 +212,6 @@ function UnsubscribeFromChatButton({ chatRoomId, healthGuideId }) {
               chat_room: {
                 ...chatRoom,
                 ...chat_room,
-                messages: chat_room.messages ? chat_room.messages : [],
               },
             },
           })
