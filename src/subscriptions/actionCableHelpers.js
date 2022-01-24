@@ -18,7 +18,7 @@ export const createActionCableLink = (token, channelName) => {
   if (actionCable) {
     destroyActionCableLink()
   }
-  const actionCableUrl = 'wss://wss-staging.rightwayhealthcare.com/?auth_token=' + token
+  const actionCableUrl = `${process.env.REACT_APP_GRAPHQL_SUBSCRIPTION_HOST}/?auth_token=${token}`
   const cable = createConsumer(actionCableUrl)
 
   actionCable = new ActionCableLink({
@@ -28,4 +28,3 @@ export const createActionCableLink = (token, channelName) => {
 
   return actionCable
 }
-

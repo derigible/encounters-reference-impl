@@ -4,7 +4,6 @@ import {
   from,
   split,
   HttpLink,
-  
 } from '@apollo/client'
 import { setContext } from 'apollo-link-context'
 import { onError } from '@apollo/client/link/error'
@@ -23,7 +22,7 @@ export default function createClient({ path, token }) {
         }
         return
       }
-  
+
       if (graphQLErrors) console.log(`[GraphqlErrors error]: ${graphQLErrors}`)
       if (networkError) console.log(`[Network error]: ${networkError}`)
     }
@@ -35,12 +34,14 @@ export default function createClient({ path, token }) {
     return {
       headers: {
         ...headers,
-        'Rightway-Consumer-Version': path.includes('graphql') ? 'Advocate WEB Application' : 'Member WEB Application',
+        'Rightway-Consumer-Version': path.includes('graphql')
+          ? 'Advocate WEB Application'
+          : 'Member WEB Application',
         Authorization: token ? `Bearer ${token}` : '',
       },
     }
   })
-  
+
   const hasSubscriptionOperation = ({ query: { definitions } }) =>
     definitions.some(
       ({ kind, operation }) =>
@@ -51,17 +52,22 @@ export default function createClient({ path, token }) {
   const httpLink = new HttpLink({
     uri: process.env.REACT_APP_GRAPHQL_HOST + path,
   })
-  const channelName = path.includes('graphql') ? 'GraphqlChannel' : 'ConsumerGraphqlChannel'
-  
+  const channelName = path.includes('graphql')
+    ? 'GraphqlChannel'
+    : 'ConsumerGraphqlChannel'
+
   return new ApolloClient({
     link: from([
       retryLink,
       errorLink,
       authLink,
-      split(hasSubscriptionOperation, createActionCableLink(token, channelName), httpLink),
+      split(
+        hasSubscriptionOperation,
+        createActionCableLink(token, channelName),
+        httpLink
+      ),
     ]),
     cache,
     connectToDevTools: true,
   })
 }
-

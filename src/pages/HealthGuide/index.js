@@ -12,16 +12,16 @@ import { useQuery } from '@apollo/client'
 import ChatRooms from './ChatRooms'
 import Tickets from './Tickets'
 import HealthGuideChat from './HealthGuideChat'
-import {CURRENT_USER_QUERY} from '../../gql/queries/current_user'
+import { CURRENT_USER_QUERY } from '../../gql/queries/current_user'
 
 const TAB_MAP = {
   1: 'chatRooms',
-  2: 'tickets'
+  2: 'tickets',
 }
 
 const REVERSE_TAB_MAP = {
   chatRooms: '1',
-  tickets: '2'
+  tickets: '2',
 }
 
 export default function HealthGuideStart() {
@@ -31,17 +31,34 @@ export default function HealthGuideStart() {
   if (error) return <div>{`Error! ${error.message}`}</div>
   return (
     <Routes>
-      <Route path="/chatRoom/:id" element={<HealthGuideChat currentUserId={data.current_user.id} />} />
-      <Route path="/" element={<HealthGuide currentUserId={data.current_user.id} />} />
+      <Route
+        path="/chatRoom/:id"
+        element={
+          <HealthGuideChat
+            currentUserId={data.current_user.id}
+            currentHealthGuideId={data.current_user.health_guide.id}
+          />
+        }
+      />
+      <Route
+        path="/"
+        element={
+          <HealthGuide
+            currentUserId={data.current_user.id}
+            currentHealthGuideId={data.current_user.health_guide.id}
+          />
+        }
+      />
     </Routes>
   )
 }
 
-
-function HealthGuide({currentUserId}) {
+function HealthGuide({ currentUserId, currentHealthGuideId }) {
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const [value, setValue] = useState(REVERSE_TAB_MAP[(searchParams.get('tab') || 'chatRooms')])
+  const [value, setValue] = useState(
+    REVERSE_TAB_MAP[searchParams.get('tab') || 'chatRooms']
+  )
 
   const handleChange = (event, newValue) => {
     setValue(newValue)
@@ -62,10 +79,16 @@ function HealthGuide({currentUserId}) {
             </TabList>
           </Box>
           <TabPanel value="1">
-            <ChatRooms currentUserId={currentUserId}/>
+            <ChatRooms
+              currentUserId={currentUserId}
+              currentHealthGuideId={currentHealthGuideId}
+            />
           </TabPanel>
           <TabPanel value="2">
-            <Tickets currentUserId={currentUserId}/>
+            <Tickets
+              currentUserId={currentUserId}
+              currentHealthGuideId={currentHealthGuideId}
+            />
           </TabPanel>
         </TabContext>
       </Box>
