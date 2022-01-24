@@ -1694,6 +1694,13 @@
     mkdirp "^1.0.4"
     rimraf "^3.0.2"
 
+"@pinkairship/use-messenger@^1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@pinkairship/use-messenger/-/use-messenger-1.1.3.tgz#2ba504407f54d32371575d6ac00f479640374593"
+  integrity sha512-kskIbgSf+8c2yI06LBxDRTCqLWw/RvHU2wdbgrxIFL0LS0T34MtkpOiqG3CiBUePDacFR491elxWFy0TYXEX0g==
+  dependencies:
+    nanoid "^3.1.20"
+
 "@pmmmwh/react-refresh-webpack-plugin@0.4.3":
   version "0.4.3"
   resolved "https://registry.npmjs.org/@pmmmwh/react-refresh-webpack-plugin/-/react-refresh-webpack-plugin-0.4.3.tgz"
