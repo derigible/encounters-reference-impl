@@ -3,19 +3,22 @@ import { useQuery } from '@apollo/client'
 
 import ChatRoom from '../../components/ChatRoom'
 import {M_CHAT_ROOM_QUERY} from '../../gql/queries/m_chat_room'
+import {M_CURRENT_USER_QUERY} from '../../gql/queries/m_current_user'
 import {M_CHAT_ROOMS_QUERY} from '../../gql/queries/m_chat_rooms'
 import {M_SEND_MESSAGE_MUTATION} from '../../gql/mutations/m_send_message_mutation'
+import { cache } from '../../subscriptions/client'
 
 export default function Member() {
+  const { data: c_data, loading: c_loading, error: c_error } = useQuery(M_CURRENT_USER_QUERY)
   const { data, loading, error } = useQuery(M_CHAT_ROOMS_QUERY)
 
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>{`Error! ${error.message}`}</div>
+  if (loading || c_loading) return <div>Loading...</div>
+  if (error || c_error) return <div>{`Error! ${error ? error.message : c_error.message}`}</div>
   
   const updateQuery = (prev, { subscriptionData }) => {
       console.log('updating through ws')
       if (!subscriptionData.data) return prev
-      const newChatMessage = subscriptionData.data.chatRoomMessages.message
+      const newChatMessage = subscriptionData.data.chat_room_messages.message
       return {
         ...prev,
         chat_room: {
@@ -28,25 +31,26 @@ export default function Member() {
     currentCache,
     {
       data: {
-        sendMessage: { message, errors },
+        send_message: { message, errors },
       },
     }
   ) => {
     const messagesQueryParams = {
       query: M_CHAT_ROOM_QUERY,
-      variables: { chat_room_id: chatRoomId },
+      variables: { chatRoomId: chatRoomId },
     }
 
     console.log('updating through the mutation')
-    const chat = currentCache.readQuery(messagesQueryParams)
+    const chat_room = currentCache.readQuery(messagesQueryParams)
+    console.log(chat_room, message)
     currentCache.writeQuery({
       ...messagesQueryParams,
       data: {
-        chat: { ...chat.chat, messages: [...chat.chat.messages, message] },
+        chat_room: { ...chat_room.chat_room, messages: [...chat_room.chat_room.messages, message] },
       },
     })
     if (errors) {
-      console.log(`[ChatMutationErrors]`, errors)
+      console.log(`[SendMessageErrors]`, errors)
     }
   }
   return (
@@ -57,13 +61,14 @@ export default function Member() {
       <Grid container spacing={2}>
         {
           data.chat_rooms.map((c) => (
-            <Grid item xs={6} md={6} key={c.category_id}>
+            <Grid item xs={6} md={6} key={c.id}>
               <ChatRoom 
-                chatRoom={c} 
+                chatRoomId={c.id} 
                 chatRoomQuery={M_CHAT_ROOM_QUERY} 
                 sendMessageMutation={M_SEND_MESSAGE_MUTATION}
                 updateQuery={updateQuery}
                 update={update(c.id)}
+                currentUserId={c_data.currentUser.employee_id}
               />
             </Grid>
           ))

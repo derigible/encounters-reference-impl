@@ -4,6 +4,9 @@ export const MESSAGE_FIELDS_FRAGMENT = gql`
   fragment MessageFieldsFragment on Message {
     id
     content
-    sent_at
+    sender {
+      id
+      name
+    }
   }
 `

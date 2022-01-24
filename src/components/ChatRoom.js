@@ -10,13 +10,13 @@ const ownerStyles = {backgroundColor: 'orange', color: 'initial'}
 const ownerStylesBlock = {justifyContent: 'end', display: 'inherit'}
 
 export default function ChatRoom({ 
-  chatRoom, 
+  chatRoomId, 
   chatRoomQuery,
   sendMessageMutation,
   updateQuery,
   update
 }) {
-  const variables = { chatRoomId: chatRoom.id }
+  const variables = { chatRoomId }
   const [newMessage, setNewMessage] = useState('')
   const { subscribeToMore, data, loading, error } = useQuery(chatRoomQuery, {
     variables,
@@ -32,12 +32,11 @@ export default function ChatRoom({
 
   const [sendMessage] = useMutation(sendMessageMutation, {update})
 
-  const isOwner = (m) => m.sender && m.sender.name === chatRoom.owner.name
   const submitMessage = () => {
     sendMessage(
       {
         variables: {
-          chatRoomId: chatRoom.id,
+          chatRoomId: chatRoomId,
           content: newMessage
         }
       }
@@ -48,7 +47,11 @@ export default function ChatRoom({
   if (loading) return <div>Loading...</div>
   if (error) return <div>{`Error! ${error.message}`}</div>
 
-  const messages = (data['chatRoom'] || data['chat_room']).messages
+  const chatRoom = (data['chatRoom'] || data['chat_room'])
+
+  // TODO: fix this for health guide - must compare by id - pass this function in
+  const isOwner = (u) => (u.sender && u.sender.id === chatRoom.owner.id)
+  const messages = chatRoom.messages
   return (
     <Paper>
       <Typography variant="h3">{ChatRoom.category}</Typography>

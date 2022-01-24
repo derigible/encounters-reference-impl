@@ -20,7 +20,7 @@ function StartScreen() {
     if(searchParams.get('access_token')) {
       return client({
         token: searchParams.get('access_token'),
-        path: loc.pathname === 'health_guide' ? '/graphql' : '/consumer'
+        path: loc.pathname.includes('health_guide') ? '/graphql' : '/consumer'
       })
     }
   })

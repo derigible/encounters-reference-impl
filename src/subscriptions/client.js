@@ -35,7 +35,7 @@ export default function createClient({ path, token }) {
     return {
       headers: {
         ...headers,
-        'Rightway-Consumer-Version': 'Advocate WEB Application',
+        'Rightway-Consumer-Version': path.includes('graphql') ? 'Advocate WEB Application' : 'Member WEB Application',
         Authorization: token ? `Bearer ${token}` : '',
       },
     }
@@ -51,7 +51,7 @@ export default function createClient({ path, token }) {
   const httpLink = new HttpLink({
     uri: process.env.REACT_APP_GRAPHQL_HOST + path,
   })
-  const channelName = path === 'graphql' ? 'GraphqlChannel' : 'ConsumerGraphqlChannel'
+  const channelName = path.includes('graphql') ? 'GraphqlChannel' : 'ConsumerGraphqlChannel'
   
   return new ApolloClient({
     link: from([

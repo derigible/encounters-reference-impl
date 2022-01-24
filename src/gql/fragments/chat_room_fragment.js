@@ -5,8 +5,15 @@ export const CHATROOM_FRAGMENT = gql`
     id
     category
     owner {
+      id
       name
     }
     last_read_message
+    participants {
+      nodes {
+        id
+        name
+      }
+    }
   }
 `

@@ -2,11 +2,12 @@ import { gql } from '@apollo/client'
 
 import { MESSAGE_FIELDS_FRAGMENT } from '../fragments/message_fragment'
 
-export const CHAT_ROOM_MESSAGES_SUBSCRIPTION = gql`
+export const CHAT_ROOM_QUERY = gql`
   ${MESSAGE_FIELDS_FRAGMENT}
-  subscription ChatRoomMessages($chatRoomId: ID!) {
-    chat_room_messages(chat_room_id: $chatRoomId) {
-      message {
+  query MessagesForChatRoom($chatRoomId: ID!) {
+    chat_room(chat_room_id: $chatRoomId) {
+      category
+      messages {
         ...MessageFieldsFragment
       }
     }

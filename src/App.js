@@ -17,7 +17,7 @@ function App() {
       </Button>
       <div style={{ marginTop: '1em' }}>
         <Routes>
-          <Route path="/health_guide" element={<HealthGuide />} />
+          <Route path="/health_guide/*" element={<HealthGuide />} />
           <Route path="/member" element={<Member />} />
         </Routes>
       </div>

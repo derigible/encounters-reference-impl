@@ -8,6 +8,7 @@ export const M_CHAT_ROOMS_QUERY = gql`
       category
       id
       owner {
+        id
         name
       }
     }

@@ -5,28 +5,43 @@ import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import { Typography } from '@mui/material'
-import { useSearchParams } from 'react-router-dom'
+import { Route, Routes, useSearchParams } from 'react-router-dom'
+
+import { useQuery } from '@apollo/client'
 
 import ChatRooms from './ChatRooms'
-import Tickets from '../../components/Tickets'
+import Tickets from './Tickets'
+import HealthGuideChat from './HealthGuideChat'
+import {CURRENT_USER_QUERY} from '../../gql/queries/current_user'
 
 const TAB_MAP = {
   1: 'chatRooms',
-  2: 'tickets',
-  3: 'userInfo',
+  2: 'tickets'
 }
 
 const REVERSE_TAB_MAP = {
   chatRooms: '1',
-  tickets: '2',
-  userInfo: '3',
+  tickets: '2'
 }
 
-export default function HealthGuide() {
+export default function HealthGuideStart() {
+  const { data, loading, error } = useQuery(CURRENT_USER_QUERY)
+
+  if (loading) return <div>Loading...</div>
+  if (error) return <div>{`Error! ${error.message}`}</div>
+  return (
+    <Routes>
+      <Route path="/chatRoom/:id" element={<HealthGuideChat currentUserId={data.current_user.id} />} />
+      <Route path="/" element={<HealthGuide currentUserId={data.current_user.id} />} />
+    </Routes>
+  )
+}
+
+
+function HealthGuide({currentUserId}) {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const [value, setValue] = useState(REVERSE_TAB_MAP[(searchParams.get('tab') || 'chatRooms')])
-  const [token, storeToken] = useState()
 
   const handleChange = (event, newValue) => {
     setValue(newValue)
@@ -47,10 +62,10 @@ export default function HealthGuide() {
             </TabList>
           </Box>
           <TabPanel value="1">
-            <ChatRooms storeToken={storeToken} token={token} id={null}/>
+            <ChatRooms currentUserId={currentUserId}/>
           </TabPanel>
           <TabPanel value="2">
-            <Tickets />
+            <Tickets currentUserId={currentUserId}/>
           </TabPanel>
         </TabContext>
       </Box>
