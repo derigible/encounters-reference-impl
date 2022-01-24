@@ -8,5 +8,6 @@ export const MESSAGE_FIELDS_FRAGMENT = gql`
       id
       name
     }
+    sent_at
   }
 `

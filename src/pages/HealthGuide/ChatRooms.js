@@ -121,10 +121,15 @@ function SubscribeToChatButton({ chatRoomId, healthGuideId }) {
       }
 
       console.log('updating through the mutation')
+      const chatRoom = currentCache.readQuery(messagesQueryParams)
       currentCache.writeQuery({
         ...messagesQueryParams,
         data: {
-          chatRoom: chat_room,
+          chat_room: {
+            ...chatRoom,
+            ...chat_room,
+            messages: chat_room.messages ? chat_room.messages : [],
+          },
         },
       })
       if (errors) {
@@ -167,10 +172,15 @@ function UnsubscribeFromChatButton({ chatRoomId, healthGuideId }) {
         }
 
         console.log('updating through the mutation')
+        const chatRoom = currentCache.readQuery(messagesQueryParams)
         currentCache.writeQuery({
           ...messagesQueryParams,
           data: {
-            chatRoom: chat_room,
+            chat_room: {
+              ...chatRoom,
+              ...chat_room,
+              messages: chat_room.messages ? chat_room.messages : [],
+            },
           },
         })
         if (errors) {

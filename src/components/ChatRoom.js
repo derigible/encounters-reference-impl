@@ -10,9 +10,11 @@ const messageStyles = {
   padding: '0.5em',
   borderRadius: '10px',
   color: 'white',
+  maxWidth: '30em',
 }
 const ownerStyles = { backgroundColor: 'orange', color: 'initial' }
 const ownerStylesBlock = { justifyContent: 'end', display: 'inherit' }
+const ownerRight = { justifyContent: 'end', display: 'flex' }
 
 export default function ChatRoom({
   chatRoomId,
@@ -57,7 +59,7 @@ export default function ChatRoom({
   const messages = chatRoom.messages
   return (
     <Paper>
-      <Typography variant="h3">{ChatRoom.category}</Typography>
+      <Typography variant="h3">{chatRoom.category}</Typography>
       <Box
         sx={{
           backgroundColor: 'primary.dark',
@@ -74,10 +76,12 @@ export default function ChatRoom({
             .map((m) => (
               <div key={m.id} style={isOwner(m) ? ownerStylesBlock : {}}>
                 <Stack>
-                  <Typography color="white">
-                    {m.sender ? m.sender.name : 'Name'}
-                  </Typography>
-                  <div>
+                  <div style={isOwner(m) ? ownerRight : {}}>
+                    <Typography color="white">
+                      {m.sender ? m.sender.name : 'Name'} - {m.sent_at}
+                    </Typography>
+                  </div>
+                  <div style={isOwner(m) ? ownerRight : {}}>
                     <span
                       style={
                         isOwner(m)

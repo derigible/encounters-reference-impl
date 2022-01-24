@@ -6,9 +6,14 @@ export const CHAT_ROOM_QUERY = gql`
   ${MESSAGE_FIELDS_FRAGMENT}
   query MessagesForChatRoom($chatRoomId: ID!) {
     chat_room(chat_room_id: $chatRoomId) {
+      id
       category
       messages {
         ...MessageFieldsFragment
+      }
+      owner {
+        id
+        name
       }
     }
   }
