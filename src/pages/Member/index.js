@@ -7,6 +7,7 @@ import { M_CHAT_ROOM_QUERY } from '../../gql/queries/m_chat_room'
 import { M_CURRENT_USER_QUERY } from '../../gql/queries/m_current_user'
 import { M_CHAT_ROOMS_QUERY } from '../../gql/queries/m_chat_rooms'
 import { M_SEND_MESSAGE_MUTATION } from '../../gql/mutations/m_send_message_mutation'
+import { M_UPDATE_LAST_READ_MESSAGE_MUTATION } from '../../gql/mutations/m_update_last_read_message_mutation'
 
 export default function Member() {
   const { addMessage } = useMessenger()
@@ -63,24 +64,72 @@ export default function Member() {
       })
     }
   }
+  const updateFromUpdateReadMut = (chatRoomId) => (
+    currentCache,
+    {
+      data: {
+        update_last_read_message: { chat_room, errors },
+      },
+    }
+  ) => {
+    const messagesQueryParams = {
+      query: M_CHAT_ROOM_QUERY,
+      variables: { chatRoomId: chatRoomId },
+    }
+
+    if (errors && errors.length > 0) {
+      console.log(`[UpdateLastReadErrors]`, errors)
+      errors.forEach((e) =>
+        e.messages.forEach((m) => addMessage(`[UpdateLastRead] ${m}`, 'error'))
+      )
+    } else {
+      console.log('updating through the mutation')
+      const chatRoom = currentCache.readQuery(messagesQueryParams)
+      currentCache.writeQuery({
+        ...messagesQueryParams,
+        data: {
+          chat_room: {
+            ...chatRoom.chat_room,
+            ...chat_room,
+          },
+        },
+      })
+    }
+  }
+
   return (
     <>
       <Typography variant="h2" as="h1" gutterBottom>
-        Member
+        Member - {c_data.currentUser.name}
       </Typography>
       <Grid container spacing={2}>
-        {data.chat_rooms.map((c) => (
-          <Grid item xs={6} md={6} key={c.id}>
-            <ChatRoom
-              chatRoomId={c.id}
-              chatRoomQuery={M_CHAT_ROOM_QUERY}
-              sendMessageMutation={M_SEND_MESSAGE_MUTATION}
-              updateQuery={updateQuery}
-              update={update(c.id)}
-              currentUserId={c_data.currentUser.employee_id}
-            />
-          </Grid>
-        ))}
+        {data.chat_rooms.map((c) => {
+          const lastReadMessageId = c.participants.nodes.find(
+            (p) =>
+              p.sender.id == c_data.currentUser.employee_id &&
+              p.sender.__typename == 'SharedMemberType'
+          )
+          return (
+            <Grid item xs={6} md={6} key={c.id}>
+              <ChatRoom
+                chatRoomId={c.id}
+                chatRoomQuery={M_CHAT_ROOM_QUERY}
+                sendMessageMutation={M_SEND_MESSAGE_MUTATION}
+                updateReadMutation={M_UPDATE_LAST_READ_MESSAGE_MUTATION}
+                updateFromUpdateReadMut={updateFromUpdateReadMut}
+                updateQuery={updateQuery}
+                update={update(c.id)}
+                currentUserId={c_data.currentUser.employee_id}
+                currentLastMessageForUser={lastReadMessageId}
+                isOwner={(u) =>
+                  u.sender &&
+                  u.sender.id === c.owner.id &&
+                  u.sender.__typename === 'SharedMemberType'
+                }
+              />
+            </Grid>
+          )
+        })}
       </Grid>
     </>
   )

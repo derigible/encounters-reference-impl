@@ -16,10 +16,14 @@ export default function ChatRoom({
   chatRoomId,
   chatRoomQuery,
   sendMessageMutation,
+  updateReadMutation,
   updateQuery,
   update,
+  updateFromUpdateReadMut,
   setActiveMessagesCount = () => {},
   closeChat,
+  currentLastMessageForUser,
+  isOwner,
 }) {
   const variables = { chatRoomId }
   const [newMessage, setNewMessage] = useState('')
@@ -34,24 +38,26 @@ export default function ChatRoom({
       updateQuery,
     })
   }, [])
-  // useEffect(() => {
-  //   // HealthGuideSpecific Code
-  //   if (setActiveMessagesCount) {
-  //     return subscribeToMore({
-  //       document: CHAT_ROOM_CHANGES_SUBSCRIPTION,
-  //       variables,
-  //       updateQuery: (prev, { subscriptionData }) => {
-  //         console.log('updating through ws')
-  //         if (!subscriptionData.data) return prev
-  //         const newChatRoom = subscriptionData.data.chat_room_changes.chat_room
-  //         return {
-  //           ...prev,
-  //           chat_room: newChatRoom,
-  //         }
-  //       },
-  //     })
-  //   }
-  // }, [])
+  useEffect(() => {
+    // HealthGuideSpecific Code
+    if (setActiveMessagesCount) {
+      return subscribeToMore({
+        document: CHAT_ROOM_CHANGES_SUBSCRIPTION,
+        variables,
+        updateQuery: (prev, { subscriptionData }) => {
+          if (!subscriptionData.data) return prev
+          const newChatRoom = subscriptionData.data.chat_room_changes.chat_room
+          return {
+            ...prev,
+            chat_room: {
+              ...prev.chat_room,
+              ...newChatRoom,
+            },
+          }
+        },
+      })
+    }
+  }, [])
   useEffect(() => {
     if (loading || error) return
     setActiveMessagesCount(
@@ -60,6 +66,9 @@ export default function ChatRoom({
   }, [loading, error])
 
   const [sendMessage] = useMutation(sendMessageMutation, { update })
+  const [updateRead] = useMutation(updateReadMutation, {
+    update: updateFromUpdateReadMut,
+  })
 
   const submitMessage = () => {
     sendMessage({
@@ -75,9 +84,8 @@ export default function ChatRoom({
   if (error) return <div>{`Error! ${error.message}`}</div>
 
   const chatRoom = data['chatRoom'] || data['chat_room']
-  // TODO: fix this for health guide - must compare by id - pass this function in
-  const isOwner = (u) => u.sender && u.sender.id === chatRoom.owner.id
   const messages = chatRoom.messages
+  let lastMessage
   return (
     <Paper>
       <Stack direction="row" justifyContent="space-between">
@@ -104,34 +112,39 @@ export default function ChatRoom({
           {messages
             .slice()
             .sort((m1, m2) => parseInt(m1.id) - parseInt(m2.id))
-            .map((m) => (
-              <div key={m.id} style={isOwner(m) ? ownerStylesBlock : {}}>
-                <Stack>
-                  <div style={isOwner(m) ? ownerRight : {}}>
-                    <Typography color="white">
-                      {m.sender ? m.sender.name : 'Name'} - {m.sent_at}
-                    </Typography>
-                  </div>
-                  <div style={isOwner(m) ? ownerRight : {}}>
-                    <Box
-                      sx={{
-                        backgroundColor: isOwner(m)
-                          ? 'warning.main'
-                          : 'secondary.main',
-                        borderRadius: '10px',
-                        maxWidth: '30em',
-                      }}
-                    >
-                      <span style={messageStyles}>
-                        <Typography color={isOwner(m) ? '#fffcfa' : '#f5e8f7'}>
-                          {m.content}
-                        </Typography>
-                      </span>
-                    </Box>
-                  </div>
-                </Stack>
-              </div>
-            ))}
+            .map((m) => {
+              lastMessage = m.id
+              return (
+                <div key={m.id} style={isOwner(m) ? ownerStylesBlock : {}}>
+                  <Stack>
+                    <div style={isOwner(m) ? ownerRight : {}}>
+                      <Typography color="white">
+                        {m.sender ? m.sender.name : 'Name'} - {m.sent_at}
+                      </Typography>
+                    </div>
+                    <div style={isOwner(m) ? ownerRight : {}}>
+                      <Box
+                        sx={{
+                          backgroundColor: isOwner(m)
+                            ? 'warning.main'
+                            : 'secondary.main',
+                          borderRadius: '10px',
+                          maxWidth: '30em',
+                        }}
+                      >
+                        <span style={messageStyles}>
+                          <Typography
+                            color={isOwner(m) ? '#fffcfa' : '#f5e8f7'}
+                          >
+                            {m.content}
+                          </Typography>
+                        </span>
+                      </Box>
+                    </div>
+                  </Stack>
+                </div>
+              )
+            })}
         </Stack>
       </Box>
       <div style={{ padding: '0.5em' }}>
@@ -143,6 +156,16 @@ export default function ChatRoom({
             fullWidth
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
+            onFocus={() => {
+              if (lastMessage === currentLastMessageForUser) return
+              console.log(lastMessage, currentLastMessageForUser)
+              updateRead({
+                variables: {
+                  chatRoomId: chatRoomId,
+                  messageId: lastMessage,
+                },
+              })
+            }}
           />
           <Button
             variant="contained"

@@ -3,10 +3,12 @@ import { useMessenger } from '@pinkairship/use-messenger'
 import ChatRoom from '../../components/ChatRoom'
 import { CHAT_ROOM_QUERY } from '../../gql/queries/chat_room'
 import { SEND_MESSAGE_MUTATION } from '../../gql/mutations/send_message_mutation'
+import { UPDATE_LAST_READ_MESSAGE_MUTATION } from '../../gql/mutations/update_last_read_message_mutation'
 import { Typography } from '@mui/material'
 
 export default function HealthGuideChat({
   currentUserId,
+  currentHealthGuideId,
   chatRoomId,
   setActiveMessagesCount,
   incrementMessagesCount,
@@ -19,7 +21,7 @@ export default function HealthGuideChat({
   }
 
   const updateQuery = (prev, { subscriptionData }) => {
-    console.log('updating through ws')
+    console.log('[SendMessage] updating through ws')
     if (!subscriptionData.data) return prev
     const newChatMessage = subscriptionData.data.chat_room_messages.message
     const messages = [...prev.chat_room.messages, newChatMessage]
@@ -66,17 +68,58 @@ export default function HealthGuideChat({
       incrementMessagesCount()
     }
   }
+  const updateRead = (
+    currentCache,
+    {
+      data: {
+        updateLastReadMessage: { chat_room, errors },
+      },
+    }
+  ) => {
+    const messagesQueryParams = {
+      query: CHAT_ROOM_QUERY,
+      variables: { chatRoomId },
+    }
+
+    if (errors && errors.length > 0) {
+      console.log(`[UpdateLastReadMessageErrors]`, errors)
+      errors.forEach((e) =>
+        e.messages.forEach((m) =>
+          addMessage(`[UpdateLastReadMessage] ${m}`, 'error')
+        )
+      )
+    } else {
+      console.log('updating through the mutation')
+      const chatRoom = currentCache.readQuery(messagesQueryParams)
+      currentCache.writeQuery({
+        ...messagesQueryParams,
+        data: {
+          chat_room: {
+            ...chatRoom.chat_room,
+            ...chat_room,
+          },
+        },
+      })
+    }
+  }
   return (
     <div>
       <ChatRoom
         chatRoomId={chatRoomId}
         chatRoomQuery={CHAT_ROOM_QUERY}
         sendMessageMutation={SEND_MESSAGE_MUTATION}
+        updateReadMutation={UPDATE_LAST_READ_MESSAGE_MUTATION}
+        updateFromUpdateReadMut={updateRead}
         updateQuery={updateQuery}
         update={update}
         currentUserId={currentUserId}
         setActiveMessagesCount={setActiveMessagesCount}
         closeChat={closeChat}
+        isOwner={(m) =>
+          m.sender &&
+          m.sender.id === currentHealthGuideId &&
+          m.sender.__typename === 'HealthGuide'
+        }
       />
     </div>
   )

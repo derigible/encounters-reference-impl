@@ -102,12 +102,12 @@ export default function HealthGuide() {
       setNewUnreadNotification(true)
     }
   }
-  let hasNewMessage = false
+  let hasNewMessage = newUnreadMessage
 
   return (
     <>
       <Typography variant="h2" as="h1" gutterBottom>
-        HealthGuide
+        HealthGuide - {data.current_user.name}
       </Typography>
       <Box sx={{ width: '100%', typography: 'body1' }}>
         <TabContext value={value}>
