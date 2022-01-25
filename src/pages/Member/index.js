@@ -44,7 +44,7 @@ export default function Member() {
       variables: { chatRoomId: chatRoomId },
     }
 
-    if (errors.length > 0) {
+    if (errors && errors.length > 0) {
       console.log(`[SendMessageErrors]`, errors)
       errors.forEach((e) =>
         e.messages.forEach((m) => addMessage(`[SendMessage] ${m}`, 'error'))

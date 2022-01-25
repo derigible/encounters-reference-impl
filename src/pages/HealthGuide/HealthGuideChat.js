@@ -8,8 +8,8 @@ import { Typography } from '@mui/material'
 export default function HealthGuideChat({
   currentUserId,
   chatRoomId,
-  notifyNewMessage,
   setActiveMessagesCount,
+  incrementMessagesCount,
   closeChat,
 }) {
   const { addMessage } = useMessenger()
@@ -23,8 +23,7 @@ export default function HealthGuideChat({
     if (!subscriptionData.data) return prev
     const newChatMessage = subscriptionData.data.chat_room_messages.message
     const messages = [...prev.chat_room.messages, newChatMessage]
-    notifyNewMessage()
-    setActiveMessagesCount(messages.length)
+    incrementMessagesCount()
     return {
       ...prev,
       chat_room: {
@@ -64,7 +63,7 @@ export default function HealthGuideChat({
           },
         },
       })
-      setActiveMessagesCount(messages.length)
+      incrementMessagesCount()
     }
   }
   return (

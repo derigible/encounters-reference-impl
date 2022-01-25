@@ -3,16 +3,12 @@ import { useState, useEffect } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 
 import { CHAT_ROOM_MESSAGES_SUBSCRIPTION } from '../gql/subscriptions/chat_room_messages_subscription'
+import { CHAT_ROOM_CHANGES_SUBSCRIPTION } from '../gql/subscriptions/chat_room_changes_subscription'
 
 const messageStyles = {
-  backgroundColor: 'green',
   display: 'inline-block',
   padding: '0.5em',
-  borderRadius: '10px',
-  color: 'white',
-  maxWidth: '30em',
 }
-const ownerStyles = { backgroundColor: 'orange', color: 'initial' }
 const ownerStylesBlock = { justifyContent: 'end', display: 'inherit' }
 const ownerRight = { justifyContent: 'end', display: 'flex' }
 
@@ -38,6 +34,24 @@ export default function ChatRoom({
       updateQuery,
     })
   }, [])
+  // useEffect(() => {
+  //   // HealthGuideSpecific Code
+  //   if (setActiveMessagesCount) {
+  //     return subscribeToMore({
+  //       document: CHAT_ROOM_CHANGES_SUBSCRIPTION,
+  //       variables,
+  //       updateQuery: (prev, { subscriptionData }) => {
+  //         console.log('updating through ws')
+  //         if (!subscriptionData.data) return prev
+  //         const newChatRoom = subscriptionData.data.chat_room_changes.chat_room
+  //         return {
+  //           ...prev,
+  //           chat_room: newChatRoom,
+  //         }
+  //       },
+  //     })
+  //   }
+  // }, [])
   useEffect(() => {
     if (loading || error) return
     setActiveMessagesCount(
@@ -99,15 +113,21 @@ export default function ChatRoom({
                     </Typography>
                   </div>
                   <div style={isOwner(m) ? ownerRight : {}}>
-                    <span
-                      style={
-                        isOwner(m)
-                          ? { ...messageStyles, ...ownerStyles }
-                          : messageStyles
-                      }
+                    <Box
+                      sx={{
+                        backgroundColor: isOwner(m)
+                          ? 'warning.main'
+                          : 'secondary.main',
+                        borderRadius: '10px',
+                        maxWidth: '30em',
+                      }}
                     >
-                      <Typography>{m.content}</Typography>
-                    </span>
+                      <span style={messageStyles}>
+                        <Typography color={isOwner(m) ? '#fffcfa' : '#f5e8f7'}>
+                          {m.content}
+                        </Typography>
+                      </span>
+                    </Box>
                   </div>
                 </Stack>
               </div>
