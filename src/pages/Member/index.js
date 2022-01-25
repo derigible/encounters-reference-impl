@@ -104,11 +104,12 @@ export default function Member() {
       </Typography>
       <Grid container spacing={2}>
         {data.chat_rooms.map((c) => {
-          const lastReadMessageId = c.participants.nodes.find(
+          const lastReadMessageIdNode = c.participants.nodes.find(
             (p) =>
               p.sender.id == c_data.currentUser.employee_id &&
               p.sender.__typename == 'SharedMemberType'
           )
+          console.log(lastReadMessageIdNode)
           return (
             <Grid item xs={6} md={6} key={c.id}>
               <ChatRoom
@@ -120,7 +121,9 @@ export default function Member() {
                 updateQuery={updateQuery}
                 update={update(c.id)}
                 currentUserId={c_data.currentUser.employee_id}
-                currentLastMessageForUser={lastReadMessageId}
+                currentLastMessageForUser={
+                  lastReadMessageIdNode.last_read_message_id
+                }
                 isOwner={(u) =>
                   u.sender &&
                   u.sender.id === c.owner.id &&

@@ -7,18 +7,14 @@ import { UPDATE_LAST_READ_MESSAGE_MUTATION } from '../../gql/mutations/update_la
 import { Typography } from '@mui/material'
 
 export default function HealthGuideChat({
-  currentUserId,
+  currentUser,
   currentHealthGuideId,
-  chatRoomId,
+  chatRoom,
   setActiveMessagesCount,
   incrementMessagesCount,
   closeChat,
 }) {
   const { addMessage } = useMessenger()
-
-  if (!chatRoomId) {
-    return <Typography>Select a Chat to Join</Typography>
-  }
 
   const updateQuery = (prev, { subscriptionData }) => {
     console.log('[SendMessage] updating through ws')
@@ -44,7 +40,7 @@ export default function HealthGuideChat({
   ) => {
     const messagesQueryParams = {
       query: CHAT_ROOM_QUERY,
-      variables: { chatRoomId },
+      variables: { chatRoomId: chatRoom.id },
     }
 
     if (errors.length > 0) {
@@ -78,7 +74,7 @@ export default function HealthGuideChat({
   ) => {
     const messagesQueryParams = {
       query: CHAT_ROOM_QUERY,
-      variables: { chatRoomId },
+      variables: { chatRoomId: chatRoom.id },
     }
 
     if (errors && errors.length > 0) {
@@ -105,20 +101,27 @@ export default function HealthGuideChat({
   return (
     <div>
       <ChatRoom
-        chatRoomId={chatRoomId}
+        chatRoomId={chatRoom.id}
         chatRoomQuery={CHAT_ROOM_QUERY}
         sendMessageMutation={SEND_MESSAGE_MUTATION}
         updateReadMutation={UPDATE_LAST_READ_MESSAGE_MUTATION}
         updateFromUpdateReadMut={updateRead}
         updateQuery={updateQuery}
         update={update}
-        currentUserId={currentUserId}
+        currentUserId={currentUser.Id}
         setActiveMessagesCount={setActiveMessagesCount}
         closeChat={closeChat}
         isOwner={(m) =>
           m.sender &&
           m.sender.id === currentHealthGuideId &&
           m.sender.__typename === 'HealthGuide'
+        }
+        currentLastMessageForUser={
+          chatRoom.participants.nodes.find(
+            (p) =>
+              p.sender.id == currentHealthGuideId &&
+              p.sender.__typename == 'HealthGuide'
+          ).last_read_message_id
         }
       />
     </div>

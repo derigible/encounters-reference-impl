@@ -236,7 +236,6 @@ export default function HealthGuide() {
               </Box>
             </TabContext>
           )}
-          {console.log('updating again') && null}
           {chatRoomIds.map((id) => (
             <div
               style={{
@@ -246,9 +245,9 @@ export default function HealthGuide() {
               key={id}
             >
               <HealthGuideChat
-                currentUserId={currentUserId}
+                currentUser={data.current_user}
                 currentHealthGuideId={currentHealthGuideId}
-                chatRoomId={id}
+                chatRoom={chatRoomsData.chat_rooms.find((c) => c.id === id)}
                 incrementMessagesCount={() =>
                   setTimeout(() =>
                     setActiveMessagesCount((currentCount) => currentCount + 1)

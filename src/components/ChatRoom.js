@@ -40,7 +40,7 @@ export default function ChatRoom({
   }, [])
   useEffect(() => {
     // HealthGuideSpecific Code
-    if (setActiveMessagesCount) {
+    if (closeChat) {
       return subscribeToMore({
         document: CHAT_ROOM_CHANGES_SUBSCRIPTION,
         variables,
