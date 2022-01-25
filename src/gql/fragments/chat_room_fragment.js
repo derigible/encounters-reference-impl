@@ -8,11 +8,13 @@ export const CHATROOM_FRAGMENT = gql`
       id
       name
     }
-    last_read_message
     participants {
       nodes {
-        id
-        name
+        sender {
+          id
+          name
+        }
+        last_read_message_id
       }
     }
   }

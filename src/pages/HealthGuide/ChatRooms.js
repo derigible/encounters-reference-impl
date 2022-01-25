@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react'
-import { useQuery, useMutation, gql } from '@apollo/client'
+import React from 'react'
+import { useMutation, gql } from '@apollo/client'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -12,36 +12,8 @@ import { useMessenger } from '@pinkairship/use-messenger'
 
 import { SUBSCRIBE_TO_CHATROOM_MUTATION } from '../../gql/mutations/subscribe_to_chat_mutation'
 import { UNSUBSCRIBE_FROM_CHATROOM_MUTATION } from '../../gql/mutations/unsubscribe_from_chat_mutation'
-import { HG_CHAT_ROOMS_QUERY } from '../../gql/queries/hg_chat_rooms'
-import { UNSUBSCRIBED_CHAT_ROOM_MESSAGES } from '../../gql/subscriptions/unsubscribed_chat_room_messages_subscription'
 
-function ChatRooms({ setActiveChatRoom, currentHealthGuideId }) {
-  const { subscribeToMore, data, loading, error } = useQuery(
-    HG_CHAT_ROOMS_QUERY
-  )
-
-  useEffect(() => {
-    return subscribeToMore({
-      document: UNSUBSCRIBED_CHAT_ROOM_MESSAGES,
-      updateQuery: (prev, { subscriptionData }) => {
-        console.log('updating through ws')
-        if (!subscriptionData.data) return prev
-        const newChatMessage =
-          subscriptionData.data.unsubscribed_chat_room_messages.message
-        return {
-          ...prev,
-          chatRoom: {
-            ...prev.chatRoom,
-            messages: [...prev.chatRoom.messages, newChatMessage],
-          },
-        }
-      },
-    })
-  }, [])
-
-  if (loading) return <div>Loading...</div>
-  if (error) return <div>{`Error! ${error.message}`}</div>
-
+function ChatRooms({ chatRooms, addChatting, currentHealthGuideId }) {
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -53,10 +25,11 @@ function ChatRooms({ setActiveChatRoom, currentHealthGuideId }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.chat_rooms.map((row) => {
+          {chatRooms.map((row) => {
             const isParticipating = Object.values(row.participants.nodes).some(
               (n) =>
-                n.id === currentHealthGuideId && n.__typename === 'HealthGuide'
+                n.sender.id === currentHealthGuideId &&
+                n.sender.__typename === 'HealthGuide'
             )
             return (
               <TableRow
@@ -76,7 +49,7 @@ function ChatRooms({ setActiveChatRoom, currentHealthGuideId }) {
                       />
                       <Button
                         variant="contained"
-                        onClick={() => setActiveChatRoom(row.id)}
+                        onClick={() => addChatting(row.id)}
                       >
                         Join Chat
                       </Button>
