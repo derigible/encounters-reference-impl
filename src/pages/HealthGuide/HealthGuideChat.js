@@ -10,6 +10,7 @@ export default function HealthGuideChat({
   chatRoomId,
   notifyNewMessage,
   setActiveMessagesCount,
+  closeChat,
 }) {
   const { addMessage } = useMessenger()
 
@@ -76,6 +77,7 @@ export default function HealthGuideChat({
         update={update}
         currentUserId={currentUserId}
         setActiveMessagesCount={setActiveMessagesCount}
+        closeChat={closeChat}
       />
     </div>
   )

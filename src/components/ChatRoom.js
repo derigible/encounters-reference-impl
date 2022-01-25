@@ -23,6 +23,7 @@ export default function ChatRoom({
   updateQuery,
   update,
   setActiveMessagesCount = () => {},
+  closeChat,
 }) {
   const variables = { chatRoomId }
   const [newMessage, setNewMessage] = useState('')
@@ -65,7 +66,17 @@ export default function ChatRoom({
   const messages = chatRoom.messages
   return (
     <Paper>
-      <Typography variant="h3">{chatRoom.category}</Typography>
+      <Stack direction="row" justifyContent="space-between">
+        <div>
+          <Typography variant="h3">{chatRoom.category}</Typography>
+        </div>
+        {closeChat ? (
+          <Button variant="outlined" onClick={() => closeChat(chatRoomId)}>
+            Close
+          </Button>
+        ) : null}
+      </Stack>
+
       <Box
         sx={{
           backgroundColor: 'primary.dark',

@@ -88,12 +88,11 @@ export default function HealthGuide() {
     const newChatRoomIds = chatRoomIds.filter((id) => id !== chatRoomId)
     setChatRoomIds(newChatRoomIds)
     searchParams.set('chats', newChatRoomIds.join('.'))
-    if (searchParams.get('active_chat') === chatRoomId) {
-      searchParams.set(
-        'active_chat',
-        newChatRoomIds.length > 0 ? newChatRoomIds[0] : ''
-      )
-    }
+    searchParams.set(
+      'active_chat',
+      newChatRoomIds.length > 0 ? newChatRoomIds[0] : ''
+    )
+    setChatTab(newChatRoomIds.length > 0 ? newChatRoomIds[0] : '')
     setSearchParams(searchParams)
   }
   const notifyNewMessage = () => {
@@ -174,6 +173,8 @@ export default function HealthGuide() {
               <TabList
                 onChange={handleChatChange}
                 aria-label="lab API tabs example"
+                variant="scrollable"
+                scrollButtons="auto"
               >
                 {chatRoomIds.map((id) => {
                   console.log(chatRoomIds)
@@ -201,6 +202,7 @@ export default function HealthGuide() {
                 notifyNewMessage={notifyNewMessage}
                 setActiveMessagesCount={setActiveMessagesCount}
                 key={id}
+                closeChat={closeChat}
               />
             </div>
           ))}
