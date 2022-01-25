@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery, useMutation, gql } from '@apollo/client'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'

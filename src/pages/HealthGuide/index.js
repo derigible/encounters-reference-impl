@@ -13,6 +13,7 @@ import { useQuery } from '@apollo/client'
 import ChatRooms from './ChatRooms'
 import Tickets from './Tickets'
 import HealthGuideChat from './HealthGuideChat'
+import Notifications from './Notifications'
 import { CURRENT_USER_QUERY } from '../../gql/queries/current_user'
 
 export default function HealthGuide() {
@@ -51,6 +52,12 @@ export default function HealthGuide() {
     console.log(value)
     if (searchParams.get('tab') !== 'active_chat') {
       setNewUnreadMessage(true)
+    }
+  }
+  const notifyNewNotification = () => {
+    console.log(value)
+    if (searchParams.get('tab') !== 'notifications') {
+      setNewUnreadNotification(true)
     }
   }
 
@@ -127,9 +134,11 @@ export default function HealthGuide() {
             padding: '24px',
           }}
         >
-          <Tickets
+          <Notifications
             currentUserId={currentUserId}
             currentHealthGuideId={currentHealthGuideId}
+            notifyNewNotification={notifyNewNotification}
+            setActiveNotificationsCount={setActiveNotificationsCount}
           />
         </div>
       </Box>
