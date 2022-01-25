@@ -53,7 +53,7 @@ export default function HealthGuideChat({
         e.messages.forEach((m) => addMessage(`[SendMessage] ${m}`, 'error'))
       )
     } else {
-      console.log('updating through the mutation')
+      console.log('[SendMessage] updating through the mutation')
       const chatRoom = currentCache.readQuery(messagesQueryParams)
       const messages = [...chatRoom.chat_room.messages, message]
       currentCache.writeQuery({

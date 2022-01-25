@@ -102,7 +102,7 @@ export default function HealthGuide() {
       setNewUnreadNotification(true)
     }
   }
-  let hasNewMessage = newUnreadMessage
+  const hasNewMessage = []
 
   return (
     <>
@@ -165,67 +165,78 @@ export default function HealthGuide() {
             padding: '24px',
           }}
         >
-          <TabContext value={chatTab}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <TabList
-                onChange={handleChatChange}
-                aria-label="lab API tabs example"
-                variant="scrollable"
-                scrollButtons="auto"
-              >
-                {chatRoomIds.map((id) => {
-                  const chatRoom = chatRoomsData.chat_rooms.find(
-                    (c) => c.id === id
-                  )
-                  const cachedChatRoom = client.readQuery({
-                    query: CHAT_ROOM_QUERY,
-                    variables: {
-                      chatRoomId: id,
-                    },
-                  })
-                  const memberName = chatRoom.owner.name
-                  let hasNew = false
-                  if (cachedChatRoom) {
-                    hasNew =
-                      cachedChatRoom.chat_room.messages
+          {chatRoomIds.length === 0 ? (
+            <Typography>Select a Chat to Join</Typography>
+          ) : (
+            <TabContext value={chatTab}>
+              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <TabList
+                  onChange={handleChatChange}
+                  aria-label="lab API tabs example"
+                  variant="scrollable"
+                  scrollButtons="auto"
+                >
+                  {chatRoomIds.map((id, index) => {
+                    const chatRoom = chatRoomsData.chat_rooms.find(
+                      (c) => c.id === id
+                    )
+                    const cachedChatRoom = client.readQuery({
+                      query: CHAT_ROOM_QUERY,
+                      variables: {
+                        chatRoomId: id,
+                      },
+                    })
+                    const memberName = chatRoom.owner.name
+
+                    let hasNew = false
+                    if (cachedChatRoom) {
+                      const messages = cachedChatRoom.chat_room.messages
                         .slice()
-                        .sort((m1, m2) => parseInt(m1.id) - parseInt(m2.id))[
-                        cachedChatRoom.chat_room.messages.length - 1
-                      ].id >
-                      (chatRoom.participants.nodes.find(
+                        .sort((m1, m2) => parseInt(m1.id) - parseInt(m2.id))
+                      const lastMessage = messages[messages.length - 1]
+                      const nodes = chatRoom.participants.nodes
+                      const userNode = nodes.find(
                         (p) =>
                           p.sender.id === currentHealthGuideId &&
                           p.sender.__typename === 'HealthGuide'
-                      ).last_read_message_id || -1)
-                  }
+                      )
+                      hasNew =
+                        lastMessage.id > (userNode.last_read_message_id || -1)
+                    }
 
-                  hasNewMessage = hasNewMessage ? hasNewMessage : hasNew
-                  if (cachedChatRoom && hasNewMessage !== newUnreadMessage) {
-                    setNewUnreadMessage(hasNewMessage)
-                  }
-                  return (
-                    <Tab
-                      label={`${memberName} - ID${id}`}
-                      value={id}
-                      key={id}
-                      iconPosition="start"
-                      icon={
-                        <Badge
-                          badgeContent={
-                            cachedChatRoom &&
-                            cachedChatRoom.chat_room.messages.length
-                          }
-                          color={hasNew ? 'warning' : 'primary'}
-                        >
-                          <ChatBubbleOutline />
-                        </Badge>
-                      }
-                    />
-                  )
-                })}
-              </TabList>
-            </Box>
-          </TabContext>
+                    hasNewMessage.push(hasNew)
+                    if (
+                      cachedChatRoom &&
+                      index === chatRoomIds.size - 1 &&
+                      hasNewMessage.some((n) => n) !== newUnreadMessage
+                    ) {
+                      setNewUnreadMessage(hasNewMessage)
+                    }
+                    return (
+                      <Tab
+                        label={`${memberName} - ID${id}`}
+                        value={id}
+                        key={id}
+                        iconPosition="start"
+                        icon={
+                          <Badge
+                            badgeContent={
+                              cachedChatRoom &&
+                              cachedChatRoom.chat_room.messages.length
+                            }
+                            color={hasNew ? 'warning' : 'primary'}
+                          >
+                            <ChatBubbleOutline />
+                          </Badge>
+                        }
+                      />
+                    )
+                  })}
+                </TabList>
+              </Box>
+            </TabContext>
+          )}
+          {console.log('updating again') && null}
           {chatRoomIds.map((id) => (
             <div
               style={{
@@ -239,7 +250,9 @@ export default function HealthGuide() {
                 currentHealthGuideId={currentHealthGuideId}
                 chatRoomId={id}
                 incrementMessagesCount={() =>
-                  setActiveMessagesCount((currentCount) => currentCount + 1)
+                  setTimeout(() =>
+                    setActiveMessagesCount((currentCount) => currentCount + 1)
+                  )
                 }
                 setActiveMessagesCount={(count) =>
                   setActiveMessagesCount((currentCount) => currentCount + count)
