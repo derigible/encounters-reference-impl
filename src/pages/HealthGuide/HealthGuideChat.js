@@ -123,6 +123,7 @@ export default function HealthGuideChat({
               p.sender.__typename == 'HealthGuide'
           ).last_read_message_id
         }
+        participants={chatRoom.participants.nodes}
       />
     </div>
   )

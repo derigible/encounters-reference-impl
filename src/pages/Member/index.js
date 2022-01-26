@@ -109,7 +109,6 @@ export default function Member() {
               p.sender.id == c_data.currentUser.employee_id &&
               p.sender.__typename == 'SharedMemberType'
           )
-          console.log(lastReadMessageIdNode)
           return (
             <Grid item xs={6} md={6} key={c.id}>
               <ChatRoom
@@ -129,6 +128,7 @@ export default function Member() {
                   u.sender.id === c.owner.id &&
                   u.sender.__typename === 'SharedMemberType'
                 }
+                participants={c.participants.nodes}
               />
             </Grid>
           )
