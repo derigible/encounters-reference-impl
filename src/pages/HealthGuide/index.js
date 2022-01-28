@@ -55,6 +55,9 @@ export default function HealthGuide() {
     setValue(newValue)
     searchParams.set('tab', newValue)
     setSearchParams(searchParams)
+    if (newValue === 'notifications') {
+      setNewUnreadNotification(false)
+    }
   }
   const handleChatChange = (event, newValue) => {
     setChatTab(newValue)
