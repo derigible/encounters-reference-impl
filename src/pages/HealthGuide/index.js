@@ -8,16 +8,15 @@ import { Badge, Typography } from '@mui/material'
 import { useSearchParams } from 'react-router-dom'
 import { ChatBubbleOutline, NotificationsNone } from '@mui/icons-material'
 
-import { useQuery, useApolloClient } from '@apollo/client'
+import { useQuery } from '@apollo/client'
 
 import ChatRooms from './ChatRooms'
 import Tickets from './Tickets'
-import HealthGuideChat from './HealthGuideChat'
+import ActiveChats from './ActiveChats'
 import Notifications from './Notifications'
 import { CURRENT_USER_QUERY } from '../../gql/queries/current_user'
 import { HG_CHAT_ROOMS_QUERY } from '../../gql/queries/hg_chat_rooms'
 import { UNSUBSCRIBED_CHAT_ROOM_MESSAGES } from '../../gql/subscriptions/unsubscribed_chat_room_messages_subscription'
-import { CHAT_ROOM_QUERY } from '../../gql/queries/chat_room'
 
 export default function HealthGuide() {
   const { data, loading, error } = useQuery(CURRENT_USER_QUERY)
@@ -27,7 +26,6 @@ export default function HealthGuide() {
     loading: c_loading,
     error: c_error,
   } = useQuery(HG_CHAT_ROOMS_QUERY)
-  const client = useApolloClient()
 
   const [searchParams, setSearchParams] = useSearchParams()
   const [value, setValue] = useState(searchParams.get('tab') || 'chatRooms')
@@ -102,7 +100,6 @@ export default function HealthGuide() {
       setNewUnreadNotification(true)
     }
   }
-  const hasNewMessage = []
 
   return (
     <>
@@ -165,101 +162,19 @@ export default function HealthGuide() {
             padding: '24px',
           }}
         >
-          {chatRoomIds.length === 0 ? (
-            <Typography>Select a Chat to Join</Typography>
-          ) : (
-            <TabContext value={chatTab}>
-              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <TabList
-                  onChange={handleChatChange}
-                  aria-label="lab API tabs example"
-                  variant="scrollable"
-                  scrollButtons="auto"
-                >
-                  {chatRoomIds.map((id, index) => {
-                    const chatRoom = chatRoomsData.chat_rooms.find(
-                      (c) => c.id === id
-                    )
-                    const cachedChatRoom = client.readQuery({
-                      query: CHAT_ROOM_QUERY,
-                      variables: {
-                        chatRoomId: id,
-                      },
-                    })
-                    const memberName = chatRoom.owner.name
-
-                    let hasNew = false
-                    if (cachedChatRoom) {
-                      const messages = cachedChatRoom.chat_room.messages
-                        .slice()
-                        .sort((m1, m2) => parseInt(m1.id) - parseInt(m2.id))
-                      const lastMessage = messages[messages.length - 1]
-                      const nodes = chatRoom.participants.nodes
-                      const userNode = nodes.find(
-                        (p) =>
-                          p.sender.id === currentHealthGuideId &&
-                          p.sender.__typename === 'HealthGuide'
-                      )
-                      hasNew =
-                        lastMessage.id > (userNode.last_read_message_id || -1)
-                    }
-
-                    hasNewMessage.push(hasNew)
-                    if (
-                      cachedChatRoom &&
-                      index === chatRoomIds.size - 1 &&
-                      hasNewMessage.some((n) => n) !== newUnreadMessage
-                    ) {
-                      setNewUnreadMessage(hasNewMessage)
-                    }
-                    return (
-                      <Tab
-                        label={`${memberName} - ID${id}`}
-                        value={id}
-                        key={id}
-                        iconPosition="start"
-                        icon={
-                          <Badge
-                            badgeContent={
-                              cachedChatRoom &&
-                              cachedChatRoom.chat_room.messages.length
-                            }
-                            color={hasNew ? 'warning' : 'primary'}
-                          >
-                            <ChatBubbleOutline />
-                          </Badge>
-                        }
-                      />
-                    )
-                  })}
-                </TabList>
-              </Box>
-            </TabContext>
-          )}
-          {chatRoomIds.map((id) => (
-            <div
-              style={{
-                display: chatTab === id ? 'block' : 'none',
-                padding: '24px',
-              }}
-              key={id}
-            >
-              <HealthGuideChat
-                currentUser={data.current_user}
-                currentHealthGuideId={currentHealthGuideId}
-                chatRoom={chatRoomsData.chat_rooms.find((c) => c.id === id)}
-                incrementMessagesCount={() =>
-                  setTimeout(() =>
-                    setActiveMessagesCount((currentCount) => currentCount + 1)
-                  )
-                }
-                setActiveMessagesCount={(count) =>
-                  setActiveMessagesCount((currentCount) => currentCount + count)
-                }
-                closeChat={closeChat}
-              />
-            </div>
-          ))}
+          <ActiveChats
+            value={value}
+            chatRoomIds={chatRoomIds}
+            chatTab={chatTab}
+            data={data}
+            currentHealthGuideId={currentHealthGuideId}
+            chatRoomsData={chatRoomsData}
+            setActiveMessagesCount={setActiveMessagesCount}
+            closeChat={closeChat}
+            handleChatChange={handleChatChange}
+            newUnreadMessage={newUnreadMessage}
+            setNewUnreadMessage={setNewUnreadMessage}
+          />
         </div>
         <div
           style={{

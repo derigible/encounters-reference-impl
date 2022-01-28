@@ -1,10 +1,9 @@
 import { useMessenger } from '@pinkairship/use-messenger'
 
-import ChatRoom from '../../components/ChatRoom'
-import { CHAT_ROOM_QUERY } from '../../gql/queries/chat_room'
-import { SEND_MESSAGE_MUTATION } from '../../gql/mutations/send_message_mutation'
-import { UPDATE_LAST_READ_MESSAGE_MUTATION } from '../../gql/mutations/update_last_read_message_mutation'
-import { Typography } from '@mui/material'
+import ChatRoom from '../../../components/ChatRoom'
+import { CHAT_ROOM_QUERY } from '../../../gql/queries/chat_room'
+import { SEND_MESSAGE_MUTATION } from '../../../gql/mutations/send_message_mutation'
+import { UPDATE_LAST_READ_MESSAGE_MUTATION } from '../../../gql/mutations/update_last_read_message_mutation'
 
 export default function HealthGuideChat({
   currentUser,
@@ -50,13 +49,25 @@ export default function HealthGuideChat({
       )
     } else {
       console.log('[SendMessage] updating through the mutation')
-      const chatRoom = currentCache.readQuery(messagesQueryParams)
-      const messages = [...chatRoom.chat_room.messages, message]
+      const cRoom = currentCache.readQuery(messagesQueryParams)
+      const messages = [...cRoom.chat_room.messages, message]
       currentCache.writeQuery({
         ...messagesQueryParams,
         data: {
           chat_room: {
-            ...chatRoom.chat_room,
+            ...cRoom.chat_room,
+            participants: [
+              ...cRoom.chat_room.participants.filter(
+                (p) => p.sender.id === message.sender.id
+              ),
+              {
+                ...cRoom.chat_room.paricipants.find(
+                  (p) => p.sender.id === message.sender.id
+                ),
+
+                last_read_message_id: message.id,
+              },
+            ],
             messages,
           },
         },
