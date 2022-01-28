@@ -1,9 +1,13 @@
+import { useState } from 'react'
 import { useMessenger } from '@pinkairship/use-messenger'
+import { useQuery } from '@apollo/client'
 
 import ChatRoom from '../../../components/ChatRoom'
 import { CHAT_ROOM_QUERY } from '../../../gql/queries/chat_room'
+import { AVAILABLE_HEALTH_GUIDES_QUERY } from '../../../gql/queries/available_health_guides_query'
 import { SEND_MESSAGE_MUTATION } from '../../../gql/mutations/send_message_mutation'
 import { UPDATE_LAST_READ_MESSAGE_MUTATION } from '../../../gql/mutations/update_last_read_message_mutation'
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
 
 export default function HealthGuideChat({
   currentUser,
@@ -14,6 +18,12 @@ export default function HealthGuideChat({
   closeChat,
 }) {
   const { addMessage } = useMessenger()
+  const [selectedHealthGuide, setSelectedHealthGuide] = useState('')
+  const { data, loading, error } = useQuery(AVAILABLE_HEALTH_GUIDES_QUERY, {
+    variables: { chatRoomId: chatRoom.id },
+    onCompleted: (completedData) =>
+      setSelectedHealthGuide(completedData.available_health_guides[0].id),
+  })
 
   const updateQuery = (prev, { subscriptionData }) => {
     console.log('[SendMessage] updating through ws')
@@ -109,8 +119,37 @@ export default function HealthGuideChat({
       })
     }
   }
+  if (
+    !chatRoom.participants.nodes.find(
+      (p) =>
+        p.sender.id == currentHealthGuideId &&
+        p.sender.__typename == 'HealthGuide'
+    )
+  ) {
+    return <div>You were unsubscribed. Resubscribe to see this chat</div>
+  }
   return (
     <div>
+      <FormControl>
+        <InputLabel id="availableHealthGuides">
+          Available Health Guides
+        </InputLabel>
+        <Select
+          labelId="availableHealthGuides"
+          id="availableHealthGuidesSelect"
+          value={selectedHealthGuide}
+          label="Available Health Guides"
+          onChange={(e) => {
+            setSelectedHealthGuide(e.target.value)
+          }}
+        >
+          {!loading && !error
+            ? data.available_health_guides.map((hg) => (
+                <MenuItem value={hg.id}>{hg.name}</MenuItem>
+              ))
+            : null}
+        </Select>
+      </FormControl>
       <ChatRoom
         chatRoomId={chatRoom.id}
         chatRoomQuery={CHAT_ROOM_QUERY}

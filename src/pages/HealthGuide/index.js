@@ -194,6 +194,10 @@ export default function HealthGuide() {
   )
 }
 
+// We use TabPanelSpacing so that the panels of the tabs will maintain
+// the subscription connection to the server even when not displayed.
+// TabPanel for MUI unmounts the components on tab switch, something
+// we don't want in this case
 function TabPanelSpacing({ children, tabName, currentTab }) {
   return (
     <div
