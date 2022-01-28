@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useMutation, gql } from '@apollo/client'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -12,8 +12,43 @@ import { useMessenger } from '@pinkairship/use-messenger'
 
 import { SUBSCRIBE_TO_CHATROOM_MUTATION } from '../../gql/mutations/subscribe_to_chat_mutation'
 import { UNSUBSCRIBE_FROM_CHATROOM_MUTATION } from '../../gql/mutations/unsubscribe_from_chat_mutation'
+import { UNSUBSCRIBED_CHAT_ROOM_MESSAGES } from '../../gql/subscriptions/unsubscribed_chat_room_messages_subscription'
+import { PriorityHigh } from '@mui/icons-material'
 
-function ChatRooms({ chatRooms, addChatting, currentHealthGuideId }) {
+function ChatRooms({
+  chatRooms,
+  addChatting,
+  currentHealthGuideId,
+  subscribeToMore,
+  notifyUnsubscribedMessageReceived,
+  pendingOnly = false,
+  chatRoomsPendingIntake,
+}) {
+  useEffect(() => {
+    return subscribeToMore({
+      document: UNSUBSCRIBED_CHAT_ROOM_MESSAGES,
+      updateQuery: (prev, { subscriptionData }) => {
+        console.log('[UnsubscribedChatRoomMessages] updating through ws')
+        if (!subscriptionData.data) return prev
+        const chatRoom =
+          subscriptionData.data.unsubscribed_chat_room_messages.chatRoom
+        notifyUnsubscribedMessageReceived(chatRoom.id)
+        if (
+          subscriptionData.data.unsubscribed_chat_room_messages.remove &&
+          pendingOnly
+        ) {
+          return {
+            ...prev,
+            chat_rooms: prev.filter((c) => c.id !== chatRoom.id),
+          }
+        } else {
+          return prev
+        }
+      },
+    })
+  }, [])
+
+  const pendingIntakes = new Set(chatRoomsPendingIntake)
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -25,45 +60,64 @@ function ChatRooms({ chatRooms, addChatting, currentHealthGuideId }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {chatRooms.map((row) => {
-            const isParticipating = Object.values(row.participants.nodes).some(
-              (n) =>
-                n.sender.id === currentHealthGuideId &&
-                n.sender.__typename === 'HealthGuide'
-            )
-            return (
-              <TableRow
-                key={row.id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-              >
-                <TableCell component="th" scope="row">
-                  {row.category}
-                </TableCell>
-                <TableCell align="right">{row.owner.name}</TableCell>
-                <TableCell align="right">
-                  {isParticipating ? (
-                    <>
-                      <UnsubscribeFromChatButton
+          {chatRooms
+            .slice()
+            .sort((r1, r2) => {
+              console.log(r1, pendingIntakes.has(r1.id), chatRoomsPendingIntake)
+              const r1Intaking = pendingIntakes.has(r1.id)
+              const r2Intaking = pendingIntakes.has(r2.id)
+              if (r1Intaking) {
+                return -1
+              }
+              if (!r1Intaking && r2Intaking) {
+                return 1
+              }
+              return 0
+            })
+            .map((row) => {
+              const isParticipating = Object.values(
+                row.participants.nodes
+              ).some(
+                (n) =>
+                  n.sender.id === currentHealthGuideId &&
+                  n.sender.__typename === 'HealthGuide'
+              )
+              return (
+                <TableRow
+                  key={row.id}
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                  <TableCell component="th" scope="row">
+                    {pendingIntakes.has(row.id) ? (
+                      <PriorityHigh color="warning" />
+                    ) : null}
+                    {row.category}
+                  </TableCell>
+                  <TableCell align="right">{row.owner.name}</TableCell>
+                  <TableCell align="right">
+                    {isParticipating ? (
+                      <>
+                        <UnsubscribeFromChatButton
+                          chatRoomId={row.id}
+                          healthGuideId={currentHealthGuideId}
+                        />
+                        <Button
+                          variant="contained"
+                          onClick={() => addChatting(row.id)}
+                        >
+                          Join Chat
+                        </Button>
+                      </>
+                    ) : (
+                      <SubscribeToChatButton
                         chatRoomId={row.id}
                         healthGuideId={currentHealthGuideId}
                       />
-                      <Button
-                        variant="contained"
-                        onClick={() => addChatting(row.id)}
-                      >
-                        Join Chat
-                      </Button>
-                    </>
-                  ) : (
-                    <SubscribeToChatButton
-                      chatRoomId={row.id}
-                      healthGuideId={currentHealthGuideId}
-                    />
-                  )}
-                </TableCell>
-              </TableRow>
-            )
-          })}
+                    )}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
         </TableBody>
       </Table>
     </TableContainer>

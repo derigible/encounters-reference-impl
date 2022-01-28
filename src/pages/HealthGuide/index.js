@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Tab from '@mui/material/Tab'
 import TabContext from '@mui/lab/TabContext'
@@ -6,7 +6,11 @@ import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import { Badge, Typography } from '@mui/material'
 import { useSearchParams } from 'react-router-dom'
-import { ChatBubbleOutline, NotificationsNone } from '@mui/icons-material'
+import {
+  ChatBubbleOutline,
+  NotificationsNone,
+  Inbox,
+} from '@mui/icons-material'
 
 import { useQuery } from '@apollo/client'
 
@@ -16,7 +20,6 @@ import ActiveChats from './ActiveChats'
 import Notifications from './Notifications'
 import { CURRENT_USER_QUERY } from '../../gql/queries/current_user'
 import { HG_CHAT_ROOMS_QUERY } from '../../gql/queries/hg_chat_rooms'
-import { UNSUBSCRIBED_CHAT_ROOM_MESSAGES } from '../../gql/subscriptions/unsubscribed_chat_room_messages_subscription'
 
 export default function HealthGuide() {
   const { data, loading, error } = useQuery(CURRENT_USER_QUERY)
@@ -37,25 +40,7 @@ export default function HealthGuide() {
   const [newUnreadMessage, setNewUnreadMessage] = useState(false)
   const [activeNotificationsCount, setActiveNotificationsCount] = useState(0)
   const [newUnreadNotification, setNewUnreadNotification] = useState(false)
-
-  useEffect(() => {
-    return subscribeToMore({
-      document: UNSUBSCRIBED_CHAT_ROOM_MESSAGES,
-      updateQuery: (prev, { subscriptionData }) => {
-        console.log('updating through ws')
-        if (!subscriptionData.data) return prev
-        const newChatMessage =
-          subscriptionData.data.unsubscribed_chat_room_messages.message
-        return {
-          ...prev,
-          chatRoom: {
-            ...prev.chatRoom,
-            messages: [...prev.chatRoom.messages, newChatMessage],
-          },
-        }
-      },
-    })
-  }, [])
+  const [chatRoomsPendingIntake, setChatRoomsPendingIntake] = useState([])
 
   if (loading) return <div>Loading...</div>
   if (error) return <div>{`Error! ${error.message}`}</div>
@@ -100,6 +85,11 @@ export default function HealthGuide() {
       setNewUnreadNotification(true)
     }
   }
+  const notifyUnsubscribedMessageReceived = (chatRoomIdPending) => {
+    setChatRoomsPendingIntake((prev) =>
+      Array.from(new Set([...prev, chatRoomIdPending]))
+    )
+  }
 
   return (
     <>
@@ -110,7 +100,19 @@ export default function HealthGuide() {
         <TabContext value={value}>
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
             <TabList onChange={handleChange} aria-label="lab API tabs example">
-              <Tab label="ChatRooms" value="chatRooms" />
+              <Tab
+                label="ChatRooms"
+                value="chatRooms"
+                iconPosition="start"
+                icon={
+                  <Badge
+                    badgeContent={chatRoomsPendingIntake.length}
+                    color="warning"
+                  >
+                    <Inbox />
+                  </Badge>
+                }
+              />
               <Tab label="Tickets" value="tickets" />
               <Tab
                 label="Chats"
@@ -141,14 +143,6 @@ export default function HealthGuide() {
               />
             </TabList>
           </Box>
-          <TabPanel value="chatRooms">
-            <ChatRooms
-              currentUserId={currentUserId}
-              currentHealthGuideId={currentHealthGuideId}
-              addChatting={addChatting}
-              chatRooms={chatRoomsData.chat_rooms}
-            />
-          </TabPanel>
           <TabPanel value="tickets">
             <Tickets
               currentUserId={data.currentUserId}
@@ -156,12 +150,20 @@ export default function HealthGuide() {
             />
           </TabPanel>
         </TabContext>
-        <div
-          style={{
-            display: value === 'active_chat' ? 'block' : 'none',
-            padding: '24px',
-          }}
-        >
+        <TabPanelSpacing tabName="chatRooms" currentTab={value}>
+          <ChatRooms
+            currentUserId={currentUserId}
+            currentHealthGuideId={currentHealthGuideId}
+            addChatting={addChatting}
+            chatRooms={chatRoomsData.chat_rooms}
+            subscribeToMore={subscribeToMore}
+            notifyUnsubscribedMessageReceived={
+              notifyUnsubscribedMessageReceived
+            }
+            chatRoomsPendingIntake={chatRoomsPendingIntake}
+          />
+        </TabPanelSpacing>
+        <TabPanelSpacing tabName="active_chat" currentTab={value}>
           <ActiveChats
             value={value}
             chatRoomIds={chatRoomIds}
@@ -175,21 +177,29 @@ export default function HealthGuide() {
             newUnreadMessage={newUnreadMessage}
             setNewUnreadMessage={setNewUnreadMessage}
           />
-        </div>
-        <div
-          style={{
-            display: value === 'notifications' ? 'block' : 'none',
-            padding: '24px',
-          }}
-        >
+        </TabPanelSpacing>
+        <TabPanelSpacing tabName="notifications" currentTab={value}>
           <Notifications
             currentUserId={currentUserId}
             currentHealthGuideId={currentHealthGuideId}
             notifyNewNotification={notifyNewNotification}
             setActiveNotificationsCount={setActiveNotificationsCount}
           />
-        </div>
+        </TabPanelSpacing>
       </Box>
     </>
+  )
+}
+
+function TabPanelSpacing({ children, tabName, currentTab }) {
+  return (
+    <div
+      style={{
+        display: currentTab === tabName ? 'block' : 'none',
+        padding: '24px',
+      }}
+    >
+      {children}
+    </div>
   )
 }
