@@ -12,6 +12,7 @@ import { useMessenger } from '@pinkairship/use-messenger'
 
 import { SUBSCRIBE_TO_CHATROOM_MUTATION } from '../../gql/mutations/subscribe_to_chat_mutation'
 import { UNSUBSCRIBE_FROM_CHATROOM_MUTATION } from '../../gql/mutations/unsubscribe_from_chat_mutation'
+import { ACKNOWLEDGE_MESSAGES_MUTATION } from '../../gql/mutations/acknowledge_messages_mutation'
 import { UNSUBSCRIBED_CHAT_ROOM_MESSAGES } from '../../gql/subscriptions/unsubscribed_chat_room_messages_subscription'
 import { PriorityHigh } from '@mui/icons-material'
 
@@ -94,6 +95,7 @@ function ChatRooms({
                   </TableCell>
                   <TableCell align="right">{row.owner.name}</TableCell>
                   <TableCell align="right">
+                    <AcknowledgeMessagesButton chatRoomId={row.id} />
                     {isParticipating ? (
                       <>
                         <UnsubscribeFromChatButton
@@ -252,6 +254,46 @@ function UnsubscribeFromChatButton({ chatRoomId, healthGuideId }) {
       style={{ marginRight: '0.25em' }}
     >
       Unsubscribe from Chat
+    </Button>
+  )
+}
+
+function AcknowledgeMessagesButton({ chatRoomId }) {
+  const { addMessage } = useMessenger()
+  const [acknowledgeMessages] = useMutation(ACKNOWLEDGE_MESSAGES_MUTATION, {
+    update: (
+      currentCache,
+      {
+        data: {
+          acknowledgeMessages: { chat_room, errors },
+        },
+      }
+    ) => {
+      if (errors.length > 0) {
+        console.log(`[AcknowledgeMessages]`, errors)
+        errors.messages.forEach((m) =>
+          addMessage(`[AcknowledgeMessages] ${m}`, 'error')
+        )
+      } else {
+        addMessage(
+          `[AcknowledgeMessages] All messages acknowledged for chat room ${chatRoomId}`
+        )
+      }
+    },
+  })
+  return (
+    <Button
+      variant="outlined"
+      onClick={() =>
+        acknowledgeMessages({
+          variables: {
+            chatRoomId,
+          },
+        })
+      }
+      style={{ marginRight: '0.25em' }}
+    >
+      Ack Messages
     </Button>
   )
 }
