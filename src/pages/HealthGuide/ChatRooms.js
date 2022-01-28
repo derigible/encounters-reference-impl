@@ -63,7 +63,6 @@ function ChatRooms({
           {chatRooms
             .slice()
             .sort((r1, r2) => {
-              console.log(r1, pendingIntakes.has(r1.id), chatRoomsPendingIntake)
               const r1Intaking = pendingIntakes.has(r1.id)
               const r2Intaking = pendingIntakes.has(r2.id)
               if (r1Intaking) {

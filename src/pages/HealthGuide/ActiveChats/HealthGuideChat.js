@@ -97,12 +97,12 @@ export default function HealthGuideChat({
       )
     } else {
       console.log('updating through the mutation')
-      const chatRoom = currentCache.readQuery(messagesQueryParams)
+      const cRoom = currentCache.readQuery(messagesQueryParams)
       currentCache.writeQuery({
         ...messagesQueryParams,
         data: {
           chat_room: {
-            ...chatRoom.chat_room,
+            ...cRoom.chat_room,
             ...chat_room,
           },
         },
