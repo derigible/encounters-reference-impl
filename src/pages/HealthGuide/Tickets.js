@@ -1,4 +1,4 @@
-import { gql, useMutation, useQuery } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 import { useMessenger } from '@pinkairship/use-messenger'
 import { useState } from 'react'
 import Table from '@mui/material/Table'
@@ -10,7 +10,6 @@ import TableRow from '@mui/material/TableRow'
 import Dialog from '@mui/material/Dialog'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import Paper from '@mui/material/Paper'
 
@@ -27,18 +26,36 @@ import {
   MenuItem,
   Select,
   Stack,
+  Typography,
 } from '@mui/material'
 import { DeleteOutline } from '@mui/icons-material'
-import { TICKET_FRAGMENT } from '../../gql/fragments/ticket_fragment'
 import { DELETE_ALARM_MUTATION } from '../../gql/mutations/delete_alarm_mutation'
+import { useSearchParams } from 'react-router-dom'
+
+function compact(filters) {
+  const newFilters = {}
+  Object.entries(filters).forEach((e) => {
+    const [k, v] = e
+    if (v !== null && typeof v !== 'undefined' && v !== '') newFilters[k] = v
+  })
+  return newFilters
+}
 
 export default function Tickets({ token }) {
-  const [filters, setFilters] = useState({})
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [filters, setFilters] = useState({
+    health_guide_id: searchParams.get('health_guide_id'),
+    state: searchParams.get('state'),
+    tpa_id: searchParams.get('tpa_id'),
+    organization_id: searchParams.get('organization_id'),
+    member_id: searchParams.get('member_id'),
+    ticket_type_id: searchParams.get('ticket_type_id'),
+  })
   const [modalType, setModalType] = useState(false)
   const [ticketIdForAlarms, setTicketIdForAlarms] = useState('')
   const { data, loading, error } = useQuery(TICKETS_QUERY, {
     variables: {
-      filters,
+      filters: compact(filters),
     },
   })
   const { data: a_data, loading: a_loading, error: a_error } = useQuery(
@@ -62,8 +79,72 @@ export default function Tickets({ token }) {
       alarms: [],
     }
   ).alarms
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const newFilters = {
+      health_guide_id: e.target['health_guide_id'].value,
+      state: e.target['state'].value,
+      tpa_id: e.target['tpa_id'].value,
+      organization_id: e.target['organization_id'].value,
+      member_id: e.target['member_id'].value,
+      ticket_type_id: e.target['ticket_type_id'].value,
+    }
+    setFilters(newFilters)
+    Object.keys(newFilters).forEach((k) => {
+      if (newFilters[k]) {
+        searchParams.set(k, newFilters[k])
+      } else {
+        searchParams.delete(k)
+      }
+    })
+    setSearchParams(searchParams)
+  }
   return (
     <>
+      <form onSubmit={handleSubmit}>
+        <Stack direction="row" spacing={1} marginBottom={1}>
+          <Typography>Ticket Count: {data.encounter_tickets.length}</Typography>
+          <TextField
+            id="health_guide_id"
+            name="health_guide_id"
+            label="Health Guide Id"
+            defaultValue={filters.health_guide_id}
+          />
+          <TextField
+            id="state"
+            name="state"
+            label="State"
+            defaultValue={filters.state}
+          />
+          <TextField
+            id="tpa_id"
+            name="tpa_id"
+            label="TPA Id"
+            defaultValue={filters.tpa_id}
+          />
+          <TextField
+            id="organization_id"
+            name="organization_id"
+            label="Org Id"
+            defaultValue={filters.org_id}
+          />
+          <TextField
+            id="member_id"
+            name="member_id"
+            label="Member Id"
+            defaultValue={filters.member_id}
+          />
+          <TextField
+            id="ticket_type_id"
+            name="ticket_type_id"
+            label="Ticket Type Id"
+            defaultValue={filters.ticket_type_id}
+          />
+          <Button type="submit" variant="outlined">
+            Filter
+          </Button>
+        </Stack>
+      </form>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
