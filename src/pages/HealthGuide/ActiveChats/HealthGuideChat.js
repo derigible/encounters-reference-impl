@@ -144,7 +144,9 @@ export default function HealthGuideChat({
         >
           {!loading && !error
             ? data.available_health_guides.map((hg) => (
-                <MenuItem value={hg.id}>{hg.name}</MenuItem>
+                <MenuItem value={hg.id} key={hg.id}>
+                  {hg.name}
+                </MenuItem>
               ))
             : null}
         </Select>
