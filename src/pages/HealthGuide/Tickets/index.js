@@ -58,6 +58,10 @@ export default function Tickets({ token }) {
     setWorkingTicketId(ticketId)
     setModalType('create')
   }
+  const transitionState = (ticketId) => {
+    setWorkingTicketId(ticketId)
+    setModalType('transition')
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -91,6 +95,7 @@ export default function Tickets({ token }) {
         manageAlarms={manageAlarms}
         createAlarm={createAlarm}
         manageAssignees={manageAssignees}
+        transitionState={transitionState}
       />
       <Dialog
         open={!!modalType}
@@ -138,6 +143,8 @@ function DialogContent({
         availableHealthGuides={availableHealthGuides}
       />
     )
+  } else if (modalType === 'transition') {
+    return <div>To Come</div>
   } else {
     return null
   }

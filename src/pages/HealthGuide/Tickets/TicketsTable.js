@@ -12,6 +12,7 @@ export default function TicketsTable({
   manageAlarms,
   createAlarm,
   manageAssignees,
+  transitionState,
 }) {
   return (
     <TableContainer component={Paper}>
@@ -55,7 +56,14 @@ export default function TicketsTable({
                     {row.id}
                   </TableCell>
                   <TableCell>{row.ticket_type.display_name}</TableCell>
-                  <TableCell>{row.state.toUpperCase()}</TableCell>
+                  <TableCell>
+                    <Link
+                      onClick={() => transitionState(row.id)}
+                      component="button"
+                    >
+                      {row.state.toUpperCase()}
+                    </Link>
+                  </TableCell>
                   <TableCell>
                     {row.assignees.length ? (
                       <Link
