@@ -143,7 +143,11 @@ export default function Tickets({ token }) {
           </TableBody>
         </Table>
       </TableContainer>
-      <Dialog open={modalType} onClose={() => setModalType(null)} maxWidth="xl">
+      <Dialog
+        open={!!modalType}
+        onClose={() => setModalType(null)}
+        maxWidth="xl"
+      >
         {modalType === 'manage' ? (
           <ManageAlarmsDialog
             alarms={alarms}
@@ -284,7 +288,7 @@ function CreateAlarm({ ticketId, close, availableHealthGuides }) {
         <Paper sx={{ padding: 2 }}>
           <Stack spacing={2}>
             <TextField id="notes" name="notes" label="Notes" required />
-            <label style={{ display: 'block' }} for="alert_at">
+            <label style={{ display: 'block' }} htmlFor="alert_at">
               Alert at
             </label>
             <input
@@ -307,7 +311,9 @@ function CreateAlarm({ ticketId, close, availableHealthGuides }) {
                 }}
               >
                 {availableHealthGuides.map((hg) => (
-                  <MenuItem value={hg.id}>{hg.name}</MenuItem>
+                  <MenuItem value={hg.id} key={hg.id}>
+                    {hg.name}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
