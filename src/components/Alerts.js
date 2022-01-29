@@ -6,6 +6,7 @@ const alertsContainer = {
   position: 'fixed',
   width: '100%',
   top: 0,
+  zIndex: 99999,
 }
 
 const alertsContainerItem = {

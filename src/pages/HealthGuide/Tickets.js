@@ -30,6 +30,7 @@ import {
 } from '@mui/material'
 import { DeleteOutline } from '@mui/icons-material'
 import { TICKET_FRAGMENT } from '../../gql/fragments/ticket_fragment'
+import { DELETE_ALARM_MUTATION } from '../../gql/mutations/delete_alarm_mutation'
 
 export default function Tickets({ token }) {
   const [filters, setFilters] = useState({})
@@ -167,6 +168,47 @@ export default function Tickets({ token }) {
 }
 
 function ManageAlarmsDialog({ alarms, ticketId, close }) {
+  const { addMessage } = useMessenger()
+  const [removeAlarm] = useMutation(DELETE_ALARM_MUTATION, {
+    update: (
+      currentCache,
+      {
+        data: {
+          deleteAlarm: { alarm, errors },
+        },
+      }
+    ) => {
+      if (errors.length > 0) {
+        console.log(`[DeleteAlarmErrors]`, errors)
+        errors.forEach((e) =>
+          e.messages.forEach((m) => addMessage(`[DeleteAlarm] ${m}`, 'error'))
+        )
+      } else {
+        console.log('[DeleteAlarm] updating through the mutation')
+        const ticketQueryParams = {
+          query: TICKETS_QUERY,
+          variables: { filters: {} },
+        }
+        const tickets = currentCache.readQuery(ticketQueryParams)
+          .encounter_tickets
+        const ticket = tickets.find((t) => t.id === ticketId)
+        const newAlarms = ticket.alarms.filter((a) => a.id !== alarm.id)
+        const encounter_tickets = tickets.slice()
+        encounter_tickets[
+          encounter_tickets.findIndex((t) => t.id === ticketId)
+        ] = {
+          ...ticket,
+          alarms: newAlarms,
+        }
+        currentCache.writeQuery({
+          ...ticketQueryParams,
+          data: {
+            encounter_tickets,
+          },
+        })
+      }
+    },
+  })
   return (
     <>
       <DialogTitle>Manage Alarms</DialogTitle>
@@ -200,7 +242,13 @@ function ManageAlarmsDialog({ alarms, ticketId, close }) {
                     <TableCell>{row.for.name}</TableCell>
                     <TableCell>{row.created_by.name}</TableCell>
                     <TableCell align="right">
-                      <IconButton color="primary" aria-label="remove alarm">
+                      <IconButton
+                        color="primary"
+                        aria-label="remove alarm"
+                        onClick={() =>
+                          removeAlarm({ variables: { alarmId: row.id } })
+                        }
+                      >
                         <DeleteOutline />
                       </IconButton>
                     </TableCell>
@@ -237,7 +285,7 @@ function CreateAlarm({ ticketId, close, availableHealthGuides }) {
       if (errors.length > 0) {
         console.log(`[CreateAlarmErrors]`, errors)
         errors.forEach((e) =>
-          e.alarms.forEach((m) => addMessage(`[CreateAlarm] ${m}`, 'error'))
+          e.messages.forEach((m) => addMessage(`[CreateAlarm] ${m}`, 'error'))
         )
       } else {
         console.log('[CreateAlarm] updating through the mutation')
