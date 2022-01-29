@@ -47,11 +47,6 @@ export default function HealthGuideChat({
       },
     }
   ) => {
-    const messagesQueryParams = {
-      query: CHAT_ROOM_QUERY,
-      variables: { chatRoomId: chatRoom.id },
-    }
-
     if (errors.length > 0) {
       console.log(`[SendMessageErrors]`, errors)
       errors.forEach((e) =>
@@ -59,6 +54,10 @@ export default function HealthGuideChat({
       )
     } else {
       console.log('[SendMessage] updating through the mutation')
+      const messagesQueryParams = {
+        query: CHAT_ROOM_QUERY,
+        variables: { chatRoomId: chatRoom.id },
+      }
       const cRoom = currentCache.readQuery(messagesQueryParams)
       const messages = [...cRoom.chat_room.messages, message]
       currentCache.writeQuery({

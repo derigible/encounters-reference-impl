@@ -44,7 +44,6 @@ export default function Notifications({
         currentCache.modify({
           fields: {
             notifications(existingNotifications, { readField }) {
-              console.log(existingNotifications)
               const newNotifications = existingNotifications.filter((n) => {
                 return readField('id', n) !== notification.id
               })
