@@ -91,7 +91,9 @@ export default function ChatRoom({
     <Paper>
       <Stack direction="row" justifyContent="space-between">
         <div>
-          <Typography variant="h3">{chatRoom.category}</Typography>
+          <Typography variant="h3">
+            {chatRoom.category} - {chatRoom.id}
+          </Typography>
         </div>
         {closeChat ? (
           <Button variant="outlined" onClick={() => closeChat(chatRoomId)}>
@@ -121,7 +123,10 @@ export default function ChatRoom({
                     <Stack>
                       <div style={isOwner(m) ? ownerRight : {}}>
                         <Typography color="white">
-                          {m.sender ? m.sender.name : 'Name'} - {m.sent_at}
+                          {m.sender
+                            ? `${m.sender.name} - ${m.sender.id}`
+                            : 'Name'}{' '}
+                          - {m.sent_at}
                         </Typography>
                       </div>
                       <div style={isOwner(m) ? ownerRight : {}}>
