@@ -16,7 +16,7 @@ import { DeleteOutline } from '@mui/icons-material'
 import { TICKETS_QUERY } from '../../../gql/queries/tickets'
 import { DELETE_ALARM_MUTATION } from '../../../gql/mutations/delete_alarm_mutation'
 
-export default function ManageAlarms({ alarms, ticketId, close }) {
+export default function ManageAlarms({ alarms, ticketId, close, filters }) {
   const { addMessage } = useMessenger()
   const [removeAlarm] = useMutation(DELETE_ALARM_MUTATION, {
     update: (
@@ -36,7 +36,7 @@ export default function ManageAlarms({ alarms, ticketId, close }) {
         console.log('[DeleteAlarm] updating through the mutation')
         const ticketQueryParams = {
           query: TICKETS_QUERY,
-          variables: { filters: {} },
+          variables: { filters },
         }
         const tickets = currentCache.readQuery(ticketQueryParams)
           .encounter_tickets

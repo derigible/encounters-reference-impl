@@ -22,6 +22,7 @@ export default function CreateAlarm({
   ticketId,
   close,
   availableHealthGuides,
+  filters,
 }) {
   const { addMessage } = useMessenger()
   const [alertAt, setAlertAt] = useState(
@@ -45,7 +46,7 @@ export default function CreateAlarm({
         console.log('[CreateAlarm] updating through the mutation')
         const ticketQueryParams = {
           query: TICKETS_QUERY,
-          variables: { filters: {} },
+          variables: { filters },
         }
         const tickets = currentCache.readQuery(ticketQueryParams)
           .encounter_tickets

@@ -31,6 +31,7 @@ export default function ManageAssignees({
   availableHealthGuides,
   ticketId,
   close,
+  filters,
 }) {
   const { addMessage } = useMessenger()
   const [selectedHealthGuide, setSelectedHealthGuide] = useState('')
@@ -52,7 +53,7 @@ export default function ManageAssignees({
         console.log('[AssignTicket] updating through the mutation')
         const ticketQueryParams = {
           query: TICKETS_QUERY,
-          variables: { filters: {} },
+          variables: { filters },
         }
         const tickets = currentCache.readQuery(ticketQueryParams)
           .encounter_tickets
@@ -89,7 +90,7 @@ export default function ManageAssignees({
         console.log('[UnassignTicket] updating through the mutation')
         const ticketQueryParams = {
           query: TICKETS_QUERY,
-          variables: { filters: {} },
+          variables: { filters },
         }
         const tickets = currentCache.readQuery(ticketQueryParams)
           .encounter_tickets

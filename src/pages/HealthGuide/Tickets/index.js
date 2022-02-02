@@ -11,6 +11,7 @@ import ManageAlarms from './ManageAlarms'
 import Filters from './Filters'
 import ManageAssignees from './ManageAssignees'
 import TicketsTable from './TicketsTable'
+import TransitionTicket from './TransitionTicket'
 
 function compact(filters) {
   const newFilters = {}
@@ -108,6 +109,7 @@ export default function Tickets({ token }) {
           ticketId={workingTicketId}
           close={() => setModalType(null)}
           availableHealthGuides={a_data.available_health_guides}
+          filters={compact(filters)}
         />
       </Dialog>
     </>
@@ -120,11 +122,17 @@ function DialogContent({
   close,
   availableHealthGuides,
   encounter_tickets,
+  filters,
 }) {
   const ticket = encounter_tickets.find((t) => t.id === ticketId)
   if (modalType === 'manage') {
     return (
-      <ManageAlarms alarms={ticket.alarms} ticketId={ticketId} close={close} />
+      <ManageAlarms
+        alarms={ticket.alarms}
+        ticketId={ticketId}
+        close={close}
+        filters={filters}
+      />
     )
   } else if (modalType === 'create') {
     return (
@@ -132,6 +140,7 @@ function DialogContent({
         ticketId={ticketId}
         close={close}
         availableHealthGuides={availableHealthGuides}
+        filters={filters}
       />
     )
   } else if (modalType === 'assignees') {
@@ -141,10 +150,19 @@ function DialogContent({
         close={close}
         assignees={ticket.assignees}
         availableHealthGuides={availableHealthGuides}
+        filters={filters}
       />
     )
   } else if (modalType === 'transition') {
-    return <div>To Come</div>
+    return (
+      <TransitionTicket
+        ticketId={ticketId}
+        close={close}
+        availableTransitions={ticket.valid_transitions}
+        filters={filters}
+        currentState={ticket.state}
+      />
+    )
   } else {
     return null
   }
