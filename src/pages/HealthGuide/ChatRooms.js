@@ -16,6 +16,9 @@ import { ACKNOWLEDGE_MESSAGES_MUTATION } from '../../gql/mutations/acknowledge_m
 import { UNSUBSCRIBED_CHAT_ROOM_MESSAGES } from '../../gql/subscriptions/unsubscribed_chat_room_messages_subscription'
 import { PriorityHigh } from '@mui/icons-material'
 
+import SubscribeToChatButton from './SubscribeToChatButton'
+import UnsubscribeFromChatButton from './UnsubscribeFromChatButton'
+
 function ChatRooms({
   chatRooms,
   addChatting,
@@ -126,137 +129,6 @@ function ChatRooms({
 }
 
 export default ChatRooms
-
-function SubscribeToChatButton({ chatRoomId, healthGuideId }) {
-  const { addMessage } = useMessenger()
-  const [subscribeToChat] = useMutation(SUBSCRIBE_TO_CHATROOM_MUTATION, {
-    update: (
-      currentCache,
-      {
-        data: {
-          subscribeToChat: { chat_room, errors },
-        },
-      }
-    ) => {
-      const messagesQueryParams = {
-        query: gql`
-          query ChatRoom($chatRoomId: ID!) {
-            chat_room(chat_room_id: $chatRoomId) {
-              id
-              category
-              owner {
-                id
-                name
-              }
-            }
-          }
-        `,
-        variables: { chatRoomId },
-      }
-      if (errors.length > 0) {
-        console.log(`[SubscribeToChat]`, errors)
-        errors.messages.forEach((m) =>
-          addMessage(`[SubscribeToChat] ${m}`, 'error')
-        )
-      } else {
-        console.log('updating through the mutation')
-        const chatRoom = currentCache.readQuery(messagesQueryParams)
-        currentCache.writeQuery({
-          ...messagesQueryParams,
-          data: {
-            chat_room: {
-              ...chatRoom,
-              ...chat_room,
-            },
-          },
-        })
-      }
-    },
-  })
-  return (
-    <Button
-      variant="contained"
-      onClick={() =>
-        subscribeToChat({
-          variables: {
-            chatRoomId,
-            healthGuideId,
-          },
-        })
-      }
-    >
-      Subscribe to Chat
-    </Button>
-  )
-}
-
-function UnsubscribeFromChatButton({ chatRoomId, healthGuideId }) {
-  const { addMessage } = useMessenger()
-  const [unsubscribeFromChat] = useMutation(
-    UNSUBSCRIBE_FROM_CHATROOM_MUTATION,
-    {
-      update: (
-        currentCache,
-        {
-          data: {
-            unsubscribeFromChat: { chat_room, errors },
-          },
-        }
-      ) => {
-        const messagesQueryParams = {
-          query: gql`
-            query ChatRoom($chatRoomId: ID!) {
-              chat_room(chat_room_id: $chatRoomId) {
-                id
-                category
-                owner {
-                  id
-                  name
-                }
-              }
-            }
-          `,
-          variables: { chatRoomId },
-        }
-
-        if (errors.length > 0) {
-          console.log(`[UnsubscribeFromChat]`, errors)
-          errors.messages.forEach((m) =>
-            addMessage(`[UnsubscribeFromChat] ${m}`, 'error')
-          )
-        } else {
-          console.log('updating through the mutation')
-          const chatRoom = currentCache.readQuery(messagesQueryParams)
-          currentCache.writeQuery({
-            ...messagesQueryParams,
-            data: {
-              chat_room: {
-                ...chatRoom,
-                ...chat_room,
-              },
-            },
-          })
-        }
-      },
-    }
-  )
-  return (
-    <Button
-      variant="outlined"
-      onClick={() =>
-        unsubscribeFromChat({
-          variables: {
-            chatRoomId,
-            healthGuideId,
-          },
-        })
-      }
-      style={{ marginRight: '0.25em' }}
-    >
-      Unsubscribe from Chat
-    </Button>
-  )
-}
 
 function AcknowledgeMessagesButton({ chatRoomId }) {
   const { addMessage } = useMessenger()

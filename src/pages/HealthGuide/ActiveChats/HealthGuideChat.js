@@ -7,7 +7,8 @@ import { CHAT_ROOM_QUERY } from '../../../gql/queries/chat_room'
 import { AVAILABLE_HEALTH_GUIDES_QUERY } from '../../../gql/queries/available_health_guides_query'
 import { SEND_MESSAGE_MUTATION } from '../../../gql/mutations/send_message_mutation'
 import { UPDATE_LAST_READ_MESSAGE_MUTATION } from '../../../gql/mutations/update_last_read_message_mutation'
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material'
+import { FormControl, InputLabel, MenuItem, Select, Stack } from '@mui/material'
+import SubscribeToChatButton from '../SubscribeToChatButton'
 
 export default function HealthGuideChat({
   currentUser,
@@ -129,28 +130,34 @@ export default function HealthGuideChat({
   }
   return (
     <div>
-      <FormControl>
-        <InputLabel id="availableHealthGuides">
-          Available Health Guides
-        </InputLabel>
-        <Select
-          labelId="availableHealthGuides"
-          id="availableHealthGuidesSelect"
-          value={selectedHealthGuide}
-          label="Available Health Guides"
-          onChange={(e) => {
-            setSelectedHealthGuide(e.target.value)
-          }}
-        >
-          {!loading && !error
-            ? data.available_health_guides.map((hg) => (
-                <MenuItem value={hg.id} key={hg.id}>
-                  {hg.name}
-                </MenuItem>
-              ))
-            : null}
-        </Select>
-      </FormControl>
+      <Stack direction="row" spacing={1}>
+        <FormControl>
+          <InputLabel id="availableHealthGuides">
+            Available Health Guides
+          </InputLabel>
+          <Select
+            labelId="availableHealthGuides"
+            id="availableHealthGuidesSelect"
+            value={selectedHealthGuide}
+            label="Available Health Guides"
+            onChange={(e) => {
+              setSelectedHealthGuide(e.target.value)
+            }}
+          >
+            {!loading && !error
+              ? data.available_health_guides.map((hg) => (
+                  <MenuItem value={hg.id} key={hg.id}>
+                    {hg.name}
+                  </MenuItem>
+                ))
+              : null}
+          </Select>
+        </FormControl>
+        <SubscribeToChatButton
+          healthGuideId={selectedHealthGuide}
+          chatRoomId={chatRoom.id}
+        />
+      </Stack>
       <ChatRoom
         chatRoomId={chatRoom.id}
         chatRoomQuery={CHAT_ROOM_QUERY}
