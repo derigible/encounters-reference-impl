@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useMessenger } from '@pinkairship/use-messenger'
-import { useQuery } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client'
 
 import ChatRoom from '../../../components/ChatRoom'
 import { CHAT_ROOM_QUERY } from '../../../gql/queries/chat_room'
@@ -9,6 +9,7 @@ import { SEND_MESSAGE_MUTATION } from '../../../gql/mutations/send_message_mutat
 import { UPDATE_LAST_READ_MESSAGE_MUTATION } from '../../../gql/mutations/update_last_read_message_mutation'
 import { FormControl, InputLabel, MenuItem, Select, Stack } from '@mui/material'
 import SubscribeToChatButton from '../SubscribeToChatButton'
+import { DELETE_MESSAGE_MUTATION } from '../../../gql/mutations/delete_message_mutation'
 
 export default function HealthGuideChat({
   currentUser,
@@ -16,6 +17,7 @@ export default function HealthGuideChat({
   chatRoom,
   setActiveMessagesCount,
   incrementMessagesCount,
+  decrementMessagesCount,
   closeChat,
 }) {
   const { addMessage } = useMessenger()
@@ -23,7 +25,48 @@ export default function HealthGuideChat({
   const { data, loading, error } = useQuery(AVAILABLE_HEALTH_GUIDES_QUERY, {
     variables: { chatRoomId: chatRoom.id },
     onCompleted: (completedData) =>
-      setSelectedHealthGuide(completedData.available_health_guides[0].id),
+      setSelectedHealthGuide(
+        completedData.available_health_guides.length > 0
+          ? completedData.available_health_guides[0].id
+          : ''
+      ),
+  })
+  const [deleteMessageMutation] = useMutation(DELETE_MESSAGE_MUTATION, {
+    update: (
+      currentCache,
+      {
+        data: {
+          deleteMessage: { message, errors },
+        },
+      }
+    ) => {
+      if (errors.length > 0) {
+        console.log(`[DeleteMessageErrors]`, errors)
+        errors.forEach((e) =>
+          e.messages.forEach((m) => addMessage(`[DeleteMessage] ${m}`, 'error'))
+        )
+      } else {
+        console.log('[DeleteMessage] updating through the mutation')
+        const messagesQueryParams = {
+          query: CHAT_ROOM_QUERY,
+          variables: { chatRoomId: chatRoom.id },
+        }
+        const cRoom = currentCache.readQuery(messagesQueryParams)
+        const messages = cRoom.chat_room.messages.filter(
+          (m) => m.id !== message.id
+        )
+        currentCache.writeQuery({
+          ...messagesQueryParams,
+          data: {
+            chat_room: {
+              ...cRoom.chat_room,
+              messages,
+            },
+          },
+        })
+        decrementMessagesCount()
+      }
+    },
   })
 
   const updateQuery = (prev, { subscriptionData }) => {
@@ -61,6 +104,8 @@ export default function HealthGuideChat({
       }
       const cRoom = currentCache.readQuery(messagesQueryParams)
       const messages = [...cRoom.chat_room.messages, message]
+      // Update the last read message of the sender for the frontend to reflect that
+      // they read the message they sent
       currentCache.writeQuery({
         ...messagesQueryParams,
         data: {
@@ -119,6 +164,15 @@ export default function HealthGuideChat({
       })
     }
   }
+
+  const deleteMessage = (messageId) => {
+    deleteMessageMutation({
+      variables: {
+        messageId,
+      },
+    })
+  }
+
   if (
     !chatRoom.participants.nodes.find(
       (p) =>
@@ -182,6 +236,7 @@ export default function HealthGuideChat({
           ).last_read_message_id
         }
         participants={chatRoom.participants.nodes}
+        deleteMessage={deleteMessage}
       />
     </div>
   )

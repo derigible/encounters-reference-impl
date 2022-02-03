@@ -41,6 +41,11 @@ export default function ActiveChats({
                 setActiveMessagesCount((currentCount) => currentCount + 1)
               )
             }
+            decrementMessagesCount={() =>
+              setTimeout(() =>
+                setActiveMessagesCount((currentCount) => currentCount - 1)
+              )
+            }
             setActiveMessagesCount={(count) =>
               setActiveMessagesCount((currentCount) => currentCount + count)
             }

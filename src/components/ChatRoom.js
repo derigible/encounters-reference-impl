@@ -1,9 +1,18 @@
-import { Paper, Typography, Box, Stack, TextField, Button } from '@mui/material'
+import {
+  Paper,
+  Typography,
+  Box,
+  Stack,
+  TextField,
+  Button,
+  IconButton,
+} from '@mui/material'
 import React, { useState, useEffect } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 
 import { CHAT_ROOM_MESSAGES_SUBSCRIPTION } from '../gql/subscriptions/chat_room_messages_subscription'
 import { CHAT_ROOM_CHANGES_SUBSCRIPTION } from '../gql/subscriptions/chat_room_changes_subscription'
+import { DeleteSharp } from '@mui/icons-material'
 
 const messageStyles = {
   display: 'inline-block',
@@ -25,6 +34,7 @@ export default function ChatRoom({
   currentLastMessageForUser,
   isOwner,
   participants,
+  deleteMessage,
 }) {
   const variables = { chatRoomId }
   const [newMessage, setNewMessage] = useState('')
@@ -104,9 +114,9 @@ export default function ChatRoom({
 
       <Box
         sx={{
-          backgroundColor: 'primary.dark',
+          backgroundColor: '#d3d2d2',
           '&:hover': {
-            backgroundColor: 'primary.main',
+            backgroundColor: '#c1c1c1',
           },
           padding: '1em',
         }}
@@ -147,6 +157,11 @@ export default function ChatRoom({
                             </Typography>
                           </span>
                         </Box>
+                        {isOwner(m) && deleteMessage ? (
+                          <IconButton onClick={() => deleteMessage(m.id)}>
+                            <DeleteSharp />
+                          </IconButton>
+                        ) : null}
                       </div>
                     </Stack>
                   </div>
@@ -230,7 +245,7 @@ function ReadMessageToHere({
             transition: 'opacity .1s 3s',
             marginRight: '0',
             backgroundImage:
-              'linear-gradient(90deg,rgb(127 255 172) 0,rgb(127 255 172))',
+              'linear-gradient(90deg,rgb(41 157 227) 0,rgb(41 157 227))',
             borderTop: '0',
             margin: '0 0 -1px',
             height: '1px',
@@ -253,7 +268,7 @@ function ReadMessageToHere({
         />
         <Typography
           style={{
-            color: 'rgb(127 255 172)',
+            color: 'rgb(41 157 227)',
             cursor: 'default',
             lineHeight: '1.50001',
             fontWeight: '700',
