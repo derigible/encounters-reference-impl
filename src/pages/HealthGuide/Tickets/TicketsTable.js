@@ -13,6 +13,7 @@ export default function TicketsTable({
   createAlarm,
   manageAssignees,
   transitionState,
+  updateTicket,
 }) {
   return (
     <TableContainer component={Paper}>
@@ -53,7 +54,12 @@ export default function TicketsTable({
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
                   <TableCell component="th" scope="row">
-                    {row.id}
+                    <Link
+                      onClick={() => updateTicket(row.id)}
+                      component="button"
+                    >
+                      {row.id}
+                    </Link>
                   </TableCell>
                   <TableCell>{row.ticket_type.display_name}</TableCell>
                   <TableCell>

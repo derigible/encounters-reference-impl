@@ -13,6 +13,7 @@ import ManageAssignees from './ManageAssignees'
 import TicketsTable from './TicketsTable'
 import TransitionTicket from './TransitionTicket'
 import CreateTicket from './CreateTicket'
+import UpdateTicket from './UpdateTicket'
 
 function compact(filters) {
   const newFilters = {}
@@ -64,6 +65,10 @@ export default function Tickets({ token }) {
     setWorkingTicketId(ticketId)
     setModalType('transition')
   }
+  const updateTicket = (ticketId) => {
+    setWorkingTicketId(ticketId)
+    setModalType('updateTicket')
+  }
   const createTicket = () => {
     setModalType('createTicket')
   }
@@ -102,6 +107,7 @@ export default function Tickets({ token }) {
         createAlarm={createAlarm}
         manageAssignees={manageAssignees}
         transitionState={transitionState}
+        updateTicket={updateTicket}
       />
       <Dialog
         open={!!modalType}
@@ -174,6 +180,15 @@ function DialogContent({
         close={close}
         filters={filters}
         availableHealthGuides={availableHealthGuides}
+      />
+    )
+  } else if (modalType === 'updateTicket') {
+    return (
+      <UpdateTicket
+        close={close}
+        filters={filters}
+        ticketId={ticketId}
+        ticket={ticket}
       />
     )
   } else {
