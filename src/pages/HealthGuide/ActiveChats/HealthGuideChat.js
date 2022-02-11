@@ -10,6 +10,7 @@ import { UPDATE_LAST_READ_MESSAGE_MUTATION } from '../../../gql/mutations/update
 import { FormControl, InputLabel, MenuItem, Select, Stack } from '@mui/material'
 import SubscribeToChatButton from '../SubscribeToChatButton'
 import { DELETE_MESSAGE_MUTATION } from '../../../gql/mutations/delete_message_mutation'
+import { EDIT_MESSAGE_MUTATION } from '../../../gql/mutations/edit_message_mutation'
 
 export default function HealthGuideChat({
   currentUser,
@@ -65,6 +66,44 @@ export default function HealthGuideChat({
           },
         })
         decrementMessagesCount()
+      }
+    },
+  })
+  const [editMessageMutation] = useMutation(EDIT_MESSAGE_MUTATION, {
+    update: (
+      currentCache,
+      {
+        data: {
+          editMessage: { message, errors },
+        },
+      }
+    ) => {
+      if (errors.length > 0) {
+        console.log(`[EditMessageErrors]`, errors)
+        errors.forEach((e) =>
+          e.messages.forEach((m) => addMessage(`[EditMessage] ${m}`, 'error'))
+        )
+      } else {
+        console.log('[EditMessage] updating through the mutation')
+        const messagesQueryParams = {
+          query: CHAT_ROOM_QUERY,
+          variables: { chatRoomId: chatRoom.id },
+        }
+        const cRoom = currentCache.readQuery(messagesQueryParams)
+        const messageIndex = cRoom.chat_room.messages.findIndex(
+          (m) => m.id === message.id
+        )
+        const messages = cRoom.chat_room.messages.slice()
+        messages.splice(messageIndex, 1, message)
+        currentCache.writeQuery({
+          ...messagesQueryParams,
+          data: {
+            chat_room: {
+              ...cRoom.chat_room,
+              messages,
+            },
+          },
+        })
       }
     },
   })
@@ -237,6 +276,7 @@ export default function HealthGuideChat({
         }
         participants={chatRoom.participants.nodes}
         deleteMessage={deleteMessage}
+        editMessage={editMessageMutation}
       />
     </div>
   )

@@ -6,13 +6,17 @@ import {
   TextField,
   Button,
   IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from '@mui/material'
 import React, { useState, useEffect } from 'react'
 import { useMutation, useQuery } from '@apollo/client'
 
 import { CHAT_ROOM_MESSAGES_SUBSCRIPTION } from '../gql/subscriptions/chat_room_messages_subscription'
 import { CHAT_ROOM_CHANGES_SUBSCRIPTION } from '../gql/subscriptions/chat_room_changes_subscription'
-import { DeleteSharp } from '@mui/icons-material'
+import { DeleteSharp, EditSharp } from '@mui/icons-material'
 
 const messageStyles = {
   display: 'inline-block',
@@ -35,12 +39,15 @@ export default function ChatRoom({
   isOwner,
   participants,
   deleteMessage,
+  editMessage,
 }) {
   const variables = { chatRoomId }
   const [newMessage, setNewMessage] = useState('')
+  const [editModal, setEditModal] = useState(null)
   const { subscribeToMore, data, loading, error } = useQuery(chatRoomQuery, {
     variables,
   })
+  const toggleEditModal = (id = null) => setEditModal(id)
 
   useEffect(() => {
     return subscribeToMore({
@@ -96,6 +103,7 @@ export default function ChatRoom({
 
   const chatRoom = data['chatRoom'] || data['chat_room']
   const messages = chatRoom.messages
+
   let lastMessage
   return (
     <Paper>
@@ -157,6 +165,11 @@ export default function ChatRoom({
                             </Typography>
                           </span>
                         </Box>
+                        {isOwner(m) && editMessage ? (
+                          <IconButton onClick={() => toggleEditModal(m.id)}>
+                            <EditSharp />
+                          </IconButton>
+                        ) : null}
                         {isOwner(m) && deleteMessage ? (
                           <IconButton onClick={() => deleteMessage(m.id)}>
                             <DeleteSharp />
@@ -204,6 +217,43 @@ export default function ChatRoom({
           </Button>
         </Stack>
       </div>
+      <Dialog open={!!editModal} onClose={toggleEditModal} maxWidth="xl">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            editMessage({
+              variables: {
+                messageId: editModal,
+                content: e.target['editedMessage'].value,
+              },
+            })
+            e.target.value = ''
+            toggleEditModal()
+          }}
+        >
+          <DialogTitle>Edit Message</DialogTitle>
+          <DialogContent>
+            <TextField
+              label="Message"
+              multiline
+              maxRows={4}
+              name="editedMessage"
+              fullWidth
+              defaultValue={
+                editModal
+                  ? messages.find((m) => m.id === editModal).content
+                  : ''
+              }
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={toggleEditModal}>Cancel</Button>
+            <Button type="submit" variant="contained">
+              Edit
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
     </Paper>
   )
 }
