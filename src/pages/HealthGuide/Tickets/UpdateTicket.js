@@ -17,7 +17,7 @@ export default function UpdateTicket({ close, filters, ticketId, ticket }) {
       currentCache,
       {
         data: {
-          updateTicket: { ticket, errors },
+          updateTicket: { ticket: updatedTicket, errors },
         },
       }
     ) => {
@@ -35,8 +35,8 @@ export default function UpdateTicket({ close, filters, ticketId, ticket }) {
         const tickets = currentCache
           .readQuery(ticketQueryParams)
           .encounter_tickets.slice()
-        const ticketIndex = tickets.findIndex((t) => t.id === ticket.id)
-        tickets.splice(ticketIndex, 1, ticket)
+        const ticketIndex = tickets.findIndex((t) => t.id === updatedTicket.id)
+        tickets.splice(ticketIndex, 1, updatedTicket)
 
         currentCache.writeQuery({
           ...ticketQueryParams,

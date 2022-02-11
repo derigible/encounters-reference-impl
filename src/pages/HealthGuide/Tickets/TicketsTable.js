@@ -39,10 +39,10 @@ export default function TicketsTable({
           {encounter_tickets
             .slice()
             .sort((r1, r2) => {
-              if (r1.created_at < r2.created_at) {
+              if (r1.updated_at > r2.updated_at) {
                 return -1
               }
-              if (r1.created_at > r2.created_at) {
+              if (r1.updated_at < r2.updated_at) {
                 return 1
               }
               return 0
