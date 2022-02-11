@@ -1,5 +1,14 @@
-import { Typography, Grid } from '@mui/material'
-import { useQuery } from '@apollo/client'
+import {
+  Typography,
+  Grid,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+} from '@mui/material'
+import { useQuery, useMutation } from '@apollo/client'
 import { useMessenger } from '@pinkairship/use-messenger'
 
 import ChatRoom from '../../components/ChatRoom'
@@ -8,13 +17,40 @@ import { M_CURRENT_USER_QUERY } from '../../gql/queries/m_current_user'
 import { M_CHAT_ROOMS_QUERY } from '../../gql/queries/m_chat_rooms'
 import { M_SEND_MESSAGE_MUTATION } from '../../gql/mutations/m_send_message_mutation'
 import { M_UPDATE_LAST_READ_MESSAGE_MUTATION } from '../../gql/mutations/m_update_last_read_message_mutation'
+import { MAKE_REQUEST_MUTATION } from '../../gql/mutations/make_request_mutation'
+import { useState } from 'react'
+import { compact } from '../../utils'
 
 export default function Member() {
   const { addMessage } = useMessenger()
   const { data: c_data, loading: c_loading, error: c_error } = useQuery(
     M_CURRENT_USER_QUERY
   )
+  const [makeRequest] = useMutation(MAKE_REQUEST_MUTATION, {
+    update: (
+      _currentCache,
+      {
+        data: {
+          make_request: { member_request, errors },
+        },
+      }
+    ) => {
+      if (errors.length > 0) {
+        console.log(`[MakeRequestErrors]`, errors)
+        errors.forEach((e) =>
+          e.messages.forEach((m) => addMessage(`[MakeRequest] ${m}`, 'error'))
+        )
+      } else {
+        console.log('[MakeRequest] successful')
+        addMessage(
+          `Request made. You can reference it with id ${member_request.id}`
+        )
+      }
+    },
+  })
   const { data, loading, error } = useQuery(M_CHAT_ROOMS_QUERY)
+  const [requestModal, setRequestModal] = useState(false)
+  const toggleRequestModal = () => setRequestModal(!requestModal)
 
   if (loading || c_loading) return <div>Loading...</div>
   if (error || c_error)
@@ -97,11 +133,31 @@ export default function Member() {
     }
   }
 
+  const handleSubmit = (e) => {
+    e.preventDefault()
+
+    const variables = compact({
+      ticketTypeId: e.target['ticketTypeId'].value,
+      content: JSON.stringify({
+        requestData: { content: e.target['content'].value },
+      }),
+    })
+    makeRequest({
+      variables,
+    })
+    toggleRequestModal()
+  }
+
   return (
     <>
       <Typography variant="h2" as="h1" gutterBottom>
         Member - {c_data.currentUser.name}
       </Typography>
+      {/*
+        Hidden until member request is to be worked on
+      <Button variant="contained" color="primary" onClick={toggleRequestModal}>
+        Create Request
+      </Button> */}
       <Grid container spacing={2}>
         {data.chat_rooms.map((c) => {
           const lastReadMessageIdNode = c.participants.nodes.find(
@@ -134,6 +190,26 @@ export default function Member() {
           )
         })}
       </Grid>
+      <Dialog open={requestModal} onClose={toggleRequestModal} maxWidth="xl">
+        <DialogTitle>Make a Request</DialogTitle>
+        <form onSubmit={handleSubmit}>
+          <DialogContent>
+            <TextField id="content" name="content" label="Content" required />
+            <TextField
+              id="ticketTypeId"
+              name="ticketTypeId"
+              label="Ticket Type Id"
+              required
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={toggleRequestModal}>Cancel</Button>
+            <Button type="submit" variant="contained">
+              Create
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
     </>
   )
 }

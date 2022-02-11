@@ -108,6 +108,7 @@ export default function HealthGuideChat({
     },
   })
 
+  // new message over ws comes in, handle it
   const updateQuery = (prev, { subscriptionData }) => {
     console.log('[SendMessage] updating through ws')
     if (!subscriptionData.data) return prev
@@ -122,6 +123,7 @@ export default function HealthGuideChat({
       },
     }
   }
+  // sent message return value handler
   const update = (
     currentCache,
     {
@@ -169,6 +171,7 @@ export default function HealthGuideChat({
       incrementMessagesCount()
     }
   }
+  // sent message read event return value handler
   const updateRead = (
     currentCache,
     {
