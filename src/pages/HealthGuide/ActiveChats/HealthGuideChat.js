@@ -152,18 +152,20 @@ export default function HealthGuideChat({
         data: {
           chat_room: {
             ...cRoom.chat_room,
-            participants: [
-              ...cRoom.chat_room.participants.filter(
-                (p) => p.sender.id === message.sender.id
-              ),
-              {
-                ...cRoom.chat_room.paricipants.find(
+            participants: {
+              nodes: [
+                ...cRoom.chat_room.participants.nodes.filter(
                   (p) => p.sender.id === message.sender.id
                 ),
+                {
+                  ...cRoom.chat_room.participants.nodes.find(
+                    (p) => p.sender.id === message.sender.id
+                  ),
 
-                last_read_message_id: message.id,
-              },
-            ],
+                  last_read_message_id: message.id,
+                },
+              ],
+            },
             messages,
           },
         },

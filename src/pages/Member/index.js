@@ -60,12 +60,47 @@ export default function Member() {
     console.log('updating through ws')
     if (!subscriptionData.data) return prev
     const newChatMessage = subscriptionData.data.chat_room_messages.message
-    return {
-      ...prev,
-      chat_room: {
-        ...prev.chat_room,
-        messages: [...prev.chat_room.messages, newChatMessage],
-      },
+
+    if (subscriptionData.data.chat_room_messages.remove) {
+      console.log(
+        `[ChatRoomMessagesSub] removing the message ${newChatMessage.id}`
+      )
+      return {
+        ...prev,
+        chat_room: {
+          ...prev.chat_room,
+          messages: prev.chat_room.messages.filter(
+            (m) => m.id !== newChatMessage.id
+          ),
+        },
+      }
+    } else if (subscriptionData.data.chat_room_messages.replace) {
+      console.log(
+        `[ChatRoomMessagesSub] replacing the message ${newChatMessage.id}`
+      )
+      const oldMessageIndex = prev.chat_room.messages.findIndex(
+        (m) => m.id === newChatMessage.id
+      )
+      const newMessages = prev.chat_room.messages.slice()
+      newMessages.splice(oldMessageIndex, 1, newChatMessage)
+      return {
+        ...prev,
+        chat_room: {
+          ...prev.chat_room,
+          messages: newMessages,
+        },
+      }
+    } else {
+      console.log(
+        `[ChatRoomMessagesSub] adding the message ${newChatMessage.id}`
+      )
+      return {
+        ...prev,
+        chat_room: {
+          ...prev.chat_room,
+          messages: [...prev.chat_room.messages, newChatMessage],
+        },
+      }
     }
   }
   const update = (chatRoomId) => (

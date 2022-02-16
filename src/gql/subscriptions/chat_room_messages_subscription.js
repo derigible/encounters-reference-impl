@@ -9,6 +9,8 @@ export const CHAT_ROOM_MESSAGES_SUBSCRIPTION = gql`
       message {
         ...MessageFieldsFragment
       }
+      replace
+      remove
     }
   }
 `
