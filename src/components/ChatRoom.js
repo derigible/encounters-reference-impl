@@ -199,7 +199,8 @@ export default function ChatRoom({
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onFocus={() => {
-              if (lastMessage === currentLastMessageForUser) return
+              if (!lastMessage || lastMessage === currentLastMessageForUser)
+                return
               updateRead({
                 variables: {
                   chatRoomId: chatRoomId,

@@ -10,8 +10,6 @@ import Paper from '@mui/material/Paper'
 import { Button } from '@mui/material'
 import { useMessenger } from '@pinkairship/use-messenger'
 
-import { SUBSCRIBE_TO_CHATROOM_MUTATION } from '../../gql/mutations/subscribe_to_chat_mutation'
-import { UNSUBSCRIBE_FROM_CHATROOM_MUTATION } from '../../gql/mutations/unsubscribe_from_chat_mutation'
 import { ACKNOWLEDGE_MESSAGES_MUTATION } from '../../gql/mutations/acknowledge_messages_mutation'
 import { UNSUBSCRIBED_CHAT_ROOM_MESSAGES } from '../../gql/subscriptions/unsubscribed_chat_room_messages_subscription'
 import { PriorityHigh } from '@mui/icons-material'
@@ -44,6 +42,11 @@ function ChatRooms({
           return {
             ...prev,
             chat_rooms: prev.filter((c) => c.id !== chatRoom.id),
+          }
+        } else if (!prev.chat_rooms.some((c) => c.id === chatRoom.id)) {
+          return {
+            ...prev,
+            chat_rooms: [...prev.chat_rooms, chatRoom],
           }
         } else {
           return prev
