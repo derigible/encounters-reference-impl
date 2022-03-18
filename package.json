@@ -29,7 +29,7 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "cp .env.development .env.local &&react-scripts start",
     "start:staging": "cp .env.staging .env.local && yarn start",
     "build": "react-scripts build",
     "test": "react-scripts test",

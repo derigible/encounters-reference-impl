@@ -5,6 +5,7 @@ export const M_CURRENT_USER_QUERY = gql`
     currentUser {
       name
       employee_id
+      features
     }
   }
 `

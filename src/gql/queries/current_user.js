@@ -8,6 +8,7 @@ export const CURRENT_USER_QUERY = gql`
       health_guide {
         id
       }
+      features
     }
   }
 `

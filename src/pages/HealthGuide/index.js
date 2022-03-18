@@ -48,6 +48,7 @@ export default function HealthGuide() {
   if (c_loading) return <div>Loading...</div>
   if (c_error) return <div>{`Error! ${c_error.message}`}</div>
 
+  const currentUser = data.current_user
   const currentHealthGuideId = data.current_user.health_guide.id
   const currentUserId = data.current_user.id
 
@@ -117,20 +118,22 @@ export default function HealthGuide() {
                 }
               />
               <Tab label="Tickets" value="tickets" />
-              <Tab
-                label="Chats"
-                iconPosition="start"
-                icon={
-                  <Badge
-                    badgeContent={activeMessagesCount}
-                    color={newUnreadMessage ? 'warning' : 'primary'}
-                    max={999}
-                  >
-                    <ChatBubbleOutline />
-                  </Badge>
-                }
-                value="active_chat"
-              />
+              {currentUser.features.includes('chats') ? (
+                <Tab
+                  label="Chats"
+                  iconPosition="start"
+                  icon={
+                    <Badge
+                      badgeContent={activeMessagesCount}
+                      color={newUnreadMessage ? 'warning' : 'primary'}
+                      max={999}
+                    >
+                      <ChatBubbleOutline />
+                    </Badge>
+                  }
+                  value="active_chat"
+                />
+              ) : null}
               <Tab
                 label="Notifications"
                 iconPosition="start"
@@ -166,21 +169,23 @@ export default function HealthGuide() {
             chatRoomsPendingIntake={chatRoomsPendingIntake}
           />
         </TabPanelSpacing>
-        <TabPanelSpacing tabName="active_chat" currentTab={value}>
-          <ActiveChats
-            value={value}
-            chatRoomIds={chatRoomIds}
-            chatTab={chatTab}
-            data={data}
-            currentHealthGuideId={currentHealthGuideId}
-            chatRoomsData={chatRoomsData}
-            setActiveMessagesCount={setActiveMessagesCount}
-            closeChat={closeChat}
-            handleChatChange={handleChatChange}
-            newUnreadMessage={newUnreadMessage}
-            setNewUnreadMessage={setNewUnreadMessage}
-          />
-        </TabPanelSpacing>
+        {currentUser.features.includes('chats') ? (
+          <TabPanelSpacing tabName="active_chat" currentTab={value}>
+            <ActiveChats
+              value={value}
+              chatRoomIds={chatRoomIds}
+              chatTab={chatTab}
+              data={data}
+              currentHealthGuideId={currentHealthGuideId}
+              chatRoomsData={chatRoomsData}
+              setActiveMessagesCount={setActiveMessagesCount}
+              closeChat={closeChat}
+              handleChatChange={handleChatChange}
+              newUnreadMessage={newUnreadMessage}
+              setNewUnreadMessage={setNewUnreadMessage}
+            />
+          </TabPanelSpacing>
+        ) : null}
         <TabPanelSpacing tabName="notifications" currentTab={value}>
           <Notifications
             currentUserId={currentUserId}
