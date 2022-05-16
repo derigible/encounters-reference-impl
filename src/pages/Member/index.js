@@ -174,7 +174,7 @@ export default function Member() {
     const variables = compact({
       ticketTypeId: e.target['ticketTypeId'].value,
       content: JSON.stringify({
-        requestData: { content: e.target['content'].value },
+        title: e.target['title'].value,
       }),
     })
     makeRequest({
@@ -188,11 +188,9 @@ export default function Member() {
       <Typography variant="h2" as="h1" gutterBottom>
         Member - {c_data.currentUser.name}
       </Typography>
-      {/*
-        Hidden until member request is to be worked on
       <Button variant="contained" color="primary" onClick={toggleRequestModal}>
         Create Request
-      </Button> */}
+      </Button>
       <Grid container spacing={2}>
         {data.chat_rooms.map((c) => {
           const lastReadMessageIdNode = c.participants.nodes.find(
@@ -229,7 +227,7 @@ export default function Member() {
         <DialogTitle>Make a Request</DialogTitle>
         <form onSubmit={handleSubmit}>
           <DialogContent>
-            <TextField id="content" name="content" label="Content" required />
+            <TextField id="title" name="title" label="Title" required />
             <TextField
               id="ticketTypeId"
               name="ticketTypeId"
