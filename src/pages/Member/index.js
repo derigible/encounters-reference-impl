@@ -59,9 +59,9 @@ export default function Member() {
   const updateQuery = (prev, { subscriptionData }) => {
     console.log('updating through ws')
     if (!subscriptionData.data) return prev
-    const newChatMessage = subscriptionData.data.chat_room_messages.message
+    const newChatMessage = subscriptionData.data.message_for_chat_rooms.message
 
-    if (subscriptionData.data.chat_room_messages.remove) {
+    if (subscriptionData.data.message_for_chat_rooms.remove) {
       console.log(
         `[ChatRoomMessagesSub] removing the message ${newChatMessage.id}`
       )
@@ -74,7 +74,7 @@ export default function Member() {
           ),
         },
       }
-    } else if (subscriptionData.data.chat_room_messages.replace) {
+    } else if (subscriptionData.data.message_for_chat_rooms.replace) {
       console.log(
         `[ChatRoomMessagesSub] replacing the message ${newChatMessage.id}`
       )

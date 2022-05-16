@@ -16,6 +16,7 @@ import { useMutation, useQuery } from '@apollo/client'
 
 import { CHAT_ROOM_MESSAGES_SUBSCRIPTION } from '../gql/subscriptions/chat_room_messages_subscription'
 import { CHAT_ROOM_CHANGES_SUBSCRIPTION } from '../gql/subscriptions/chat_room_changes_subscription'
+import { M_CHAT_ROOM_MESSAGES_SUBSCRIPTION } from '../gql/subscriptions/m_chat_room_messages_subscription'
 import { DeleteSharp, EditSharp } from '@mui/icons-material'
 
 const messageStyles = {
@@ -51,7 +52,9 @@ export default function ChatRoom({
 
   useEffect(() => {
     return subscribeToMore({
-      document: CHAT_ROOM_MESSAGES_SUBSCRIPTION,
+      document: deleteMessage
+        ? CHAT_ROOM_MESSAGES_SUBSCRIPTION
+        : M_CHAT_ROOM_MESSAGES_SUBSCRIPTION,
       variables,
       updateQuery,
     })
@@ -161,7 +164,7 @@ export default function ChatRoom({
                             <Typography
                               color={isOwner(m) ? '#fffcfa' : '#f5e8f7'}
                             >
-                              {m.content}
+                              <MessageContent content={m.content} />
                             </Typography>
                           </span>
                         </Box>
@@ -336,4 +339,12 @@ function ReadMessageToHere({
       </div>
     </div>
   )
+}
+
+function MessageContent({ content }) {
+  if (content.__typename === 'UnstructuredContent') {
+    return content.text
+  } else if (content.__typename === 'MemberRequestAppointment') {
+    return content.title
+  }
 }
